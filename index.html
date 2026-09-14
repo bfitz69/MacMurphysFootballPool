@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MacMurphy's Week 1 Football Pool</title>
+    <style>
+        :root {
+            --bg: #0f172a;
+            --panel: #1e293b;
+            --text: #f8fafc;
+            --muted: #94a3b8;
+            --accent: #38bdf8;
+            --border: #334155;
+            --correct: #22c55e;
+            --wrong: #ef4444;
+            --hover: #334155;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            border-bottom: 2px solid var(--border);
+            padding-bottom: 20px;
+        }
+        .header h1 {
+            margin: 0;
+            color: var(--accent);
+            font-size: 2.2rem;
+            letter-spacing: -0.5px;
+        }
+        .header p {
+            color: var(--muted);
+            margin: 8px 0 0 0;
+            font-size: 1.1rem;
+        }
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 24px;
+            align-items: start;
+        }
+        @media (min-width: 900px) {
+            .grid { grid-template-columns: 1.2fr 1fr; }
+        }
+        .table-container {
+            background: var(--panel);
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            overflow-x: auto;
+            max-height: 80vh;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+        }
+        th {
+            position: sticky;
+            top: 0;
+            background: #090d16;
+            color: var(--muted);
+            padding: 16px;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            font-weight: 700;
+            border-bottom: 2px solid var(--border);
+            z-index: 10;
+        }
+        td {
+            padding: 14px 16px;
+            border-bottom: 1px solid var(--border);
+            font-size: 0.95rem;
+        }
+        tr {
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+        tr:hover {
+            background-color: var(--hover);
+        }
+        .active-row {
+            background-color: rgba(56, 189, 248, 0.1);
+        }
+        .active-row td {
+            border-bottom: 1px solid rgba(56, 189, 248, 0.3);
+        }
+        .badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            text-align: center;
+        }
+        .badge.F {
+            background: rgba(239, 68, 68, 0.15);
+            color: #f87171;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+        .badge.D {
+            background: rgba(249, 115, 22, 0.15);
+            color: #fb923c;
+            border: 1px solid rgba(249, 115, 22, 0.3);
+        }
+        .btn-view {
+            color: var(--accent);
+            text-decoration: none;
+            font-weight: 600;
+            background: rgba(56, 189, 248, 0.1);
+            padding: 6px 12px;
+            border-radius: 6px;
+            pointer-events: none; /* Let the row handle the click */
+        }
+        
+        /* Details Panel */
+        .details-panel {
+            background: var(--panel);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 24px;
+            position: sticky;
+            top: 20px;
+        }
+        .details-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid var(--border);
+        }
+        .details-header h2 {
+            margin: 0;
+            color: #ffffff;
+            font-size: 1.8rem;
+        }
+        .details-stats {
+            display: flex;
+            gap: 16px;
+            font-size: 0.95rem;
+        }
+        .stat-box {
+            background: #0f172a;
+            padding: 10px 16px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+        }
+        .stat-label {
+            display: block;
+            color: var(--muted);
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            margin-bottom: 4px;
+        }
+        .stat-val {
+            font-weight: 700;
+            color: #ffffff;
+            font-size: 1.1rem;
+        }
+        
+        /* Game Rows */
+        .game-row {
+            display: flex;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid rgba(51, 65, 85, 0.5);
+        }
+        .game-row:last-child {
+            border-bottom: none;
+        }
+        .matchup {
+            flex: 1;
+            font-size: 1rem;
+        }
+        .spread {
+            color: var(--muted);
+            font-size: 0.85rem;
+            margin-left: 8px;
+        }
+        .pick-col {
+            flex: 0 0 140px;
+            text-align: right;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 12px;
+        }
+        .icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            font-size: 14px;
+        }
+        .icon.correct {
+            background: rgba(34, 197, 94, 0.2);
+            color: var(--correct);
+        }
+        .icon.wrong {
+            background: rgba(239, 68, 68, 0.2);
+            color: var(--wrong);
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header">
+        <h1>MacMurphy's Football Pool</h1>
+        <p>Week 1 Results & Interactive Drill-Down Dashboard</p>
+    </div>
+
+    <div class="grid">
+        <!-- Leaderboard Table -->
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Rank</th>
+                        <th>Participant</th>
+                        <th>Wins</th>
+                        <th>MNF Pick</th>
+                        <th>TB Pts</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody id="leaderboard-body">
+                    <!-- Populated by JS -->
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Drill Down Panel -->
+        <div class="details-panel" id="details-panel">
+            <div style="text-align: center; padding: 40px; color: var(--muted);">
+                Select a participant from the leaderboard to view their detailed picks.
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Embedded Data Generated from Football Master ^^.xlsx & Week 1 results.pdf
+    const data = {"games": [{"fav": "Titans", "spread": 1.5, "dog": "J-E-T-S"}, {"fav": "Cowboys", "spread": 2.5, "dog": "Giants"}, {"fav": "Steelers", "spread": 3.5, "dog": "Falcons"}, {"fav": "Bears", "spread": 2.5, "dog": "Panthers"}, {"fav": "Ravens", "spread": 3.5, "dog": "Colts"}, {"fav": "Bengals", "spread": 3.5, "dog": "Buccaneers"}, {"fav": "Lions", "spread": 7.5, "dog": "Saints"}, {"fav": "Bills", "spread": 1.5, "dog": "Texans"}, {"fav": "Jaguars", "spread": 7.5, "dog": "Browns"}, {"fav": "Raiders", "spread": 3.5, "dog": "Dolphins"}, {"fav": "Chargers", "spread": 10.5, "dog": "Cardinals"}, {"fav": "Vikings", "spread": 1.5, "dog": "Packers"}, {"fav": "Eagles", "spread": 5.5, "dog": "Commanders"}], "mnf": {"fav": "Chiefs", "spread": 2.5, "dog": "Broncos"}, "actuals": ["D", "D", "F", "F", "F", "F", "D", "F", "F", "F", "D", "F", "D"], "participants": [{"code": "CC", "wins": 11, "mnf_pick": "D", "tb_pts": 34.0, "picks": ["F", "D", "F", "F", "D", "F", "D", "F", "F", "F", "D", "F", "D"]}, {"code": "HIC", "wins": 11, "mnf_pick": "D", "tb_pts": 44.0, "picks": ["F", "D", "F", "F", "F", "F", "D", "F", "F", "F", "F", "F", "D"]}, {"code": "ES", "wins": 10, "mnf_pick": "D", "tb_pts": 42.0, "picks": ["D", "F", "F", "F", "F", "F", "F", "F", "F", "F", "D", "D", "D"]}, {"code": "GPO", "wins": 10, "mnf_pick": "D", "tb_pts": 39.0, "picks": ["D", "F", "F", "F", "F", "D", "D", "F", "F", "F", "D", "F", "F"]}, {"code": "JT8", "wins": 10, "mnf_pick": "D", "tb_pts": 34.0, "picks": ["D", "F", "F", "F", "F", "F", "D", "D", "F", "F", "D", "F", "F"]}, {"code": "MJ", "wins": 10, "mnf_pick": "F", "tb_pts": 42.0, "picks": ["F", "F", "D", "F", "F", "F", "D", "F", "F", "F", "D", "F", "D"]}, {"code": "ART", "wins": 9, "mnf_pick": "F", "tb_pts": 43.0, "picks": ["F", "F", "F", "F", "F", "F", "F", "F", "F", "F", "D", "F", "F"]}, {"code": "FITZ", "wins": 9, "mnf_pick": "F", "tb_pts": 45.0, "picks": ["F", "F", "F", "F", "F", "F", "F", "F", "F", "F", "D", "F", "F"]}, {"code": "GWB", "wins": 9, "mnf_pick": "F", "tb_pts": 45.0, "picks": ["D", "D", "F", "D", "F", "F", "D", "F", "F", "F", "F", "D", "F"]}, {"code": "RIF", "wins": 9, "mnf_pick": "F", "tb_pts": 41.0, "picks": ["D", "D", "F", "D", "F", "F", "D", "D", "D", "F", "D", "F", "F"]}, {"code": "RW", "wins": 9, "mnf_pick": "F", "tb_pts": 47.0, "picks": ["D", "F", "F", "D", "F", "F", "D", "F", "F", "D", "D", "F", "F"]}, {"code": "TREZ", "wins": 9, "mnf_pick": "F", "tb_pts": 41.0, "picks": ["D", "F", "F", "F", "D", "D", "D", "F", "F", "F", "D", "F", "F"]}, {"code": "VE", "wins": 9, "mnf_pick": "D", "tb_pts": 44.0, "picks": ["D", "F", "F", "F", "F", "D", "D", "D", "F", "F", "D", "D", "D"]}, {"code": "BG", "wins": 8, "mnf_pick": "F", "tb_pts": 42.0, "picks": ["F", "D", "F", "F", "F", "F", "F", "D", "F", "F", "F", "D", "D"]}, {"code": "CH", "wins": 8, "mnf_pick": "F", "tb_pts": 43.5, "picks": ["D", "D", "D", "D", "F", "F", "F", "F", "F", "F", "F", "D", "D"]}, {"code": "CN", "wins": 8, "mnf_pick": "F", "tb_pts": 48.0, "picks": ["F", "D", "D", "F", "F", "D", "D", "F", "F", "F", "F", "F", "F"]}, {"code": "EF", "wins": 8, "mnf_pick": "D", "tb_pts": 38.0, "picks": ["D", "D", "F", "F", "F", "F", "F", "F", "D", "D", "F", "F", "F"]}, {"code": "FISH", "wins": 8, "mnf_pick": "D", "tb_pts": 46.0, "picks": ["D", "D", "F", "F", "F", "D", "F", "F", "F", "F", "F", "F", "F"]}, {"code": "JAL", "wins": 8, "mnf_pick": "D", "tb_pts": 45.0, "picks": ["D", "D", "F", "D", "F", "F", "F", "D", "D", "F", "F", "F", "D"]}, {"code": "KT4", "wins": 8, "mnf_pick": "D", "tb_pts": 40.0, "picks": ["F", "F", "F", "F", "D", "D", "D", "F", "F", "D", "D", "F", "D"]}, {"code": "RG", "wins": 8, "mnf_pick": "D", "tb_pts": 40.0, "picks": ["D", "F", "F", "F", "F", "F", "F", "D", "F", "D", "D", "D", "D"]}, {"code": "RGB", "wins": 8, "mnf_pick": "F", "tb_pts": 43.0, "picks": ["F", "F", "F", "F", "F", "D", "D", "F", "D", "F", "D", "F", "F"]}, {"code": "TR82", "wins": 8, "mnf_pick": "F", "tb_pts": 43.0, "picks": ["F", "D", "F", "F", "F", "F", "F", "F", "F", "D", "D", "D", "F"]}, {"code": "VA", "wins": 8, "mnf_pick": "D", "tb_pts": 44.0, "picks": ["D", "F", "F", "F", "D", "F", "F", "F", "F", "F", "D", "D", "F"]}, {"code": "ACM", "wins": 7, "mnf_pick": "F", "tb_pts": 42.0, "picks": ["D", "F", "F", "F", "F", "D", "F", "D", "F", "D", "D", "F", "F"]}, {"code": "BEE", "wins": 7, "mnf_pick": "F", "tb_pts": 42.0, "picks": ["D", "F", "F", "F", "F", "D", "F", "F", "F", "F", "F", "D", "F"]}, {"code": "BST", "wins": 7, "mnf_pick": "D", "tb_pts": 44.0, "picks": ["D", "F", "F", "F", "F", "F", "F", "D", "F", "D", "F", "F", "F"]}, {"code": "DAR", "wins": 7, "mnf_pick": "D", "tb_pts": 51.0, "picks": ["D", "F", "D", "F", "F", "F", "F", "D", "F", "F", "F", "F", "D"]}, {"code": "DD", "wins": 7, "mnf_pick": "D", "tb_pts": 44.0, "picks": ["F", "F", "F", "F", "D", "D", "D", "F", "F", "D", "D", "F", "D"]}, {"code": "DJ", "wins": 7, "mnf_pick": "F", "tb_pts": 46.0, "picks": ["D", "D", "F", "F", "D", "D", "F", "F", "D", "F", "F", "F", "D"]}, {"code": "EP", "wins": 7, "mnf_pick": "D", "tb_pts": 46.0, "picks": ["F", "F", "D", "D", "F", "D", "F", "F", "F", "F", "D", "F", "D"]}, {"code": "JM", "wins": 7, "mnf_pick": "F", "tb_pts": 42.0, "picks": ["F", "D", "D", "F", "F", "F", "D", "F", "F", "D", "F", "D", "F"]}, {"code": "JT", "wins": 7, "mnf_pick": "D", "tb_pts": 39.0, "picks": ["F", "D", "D", "F", "F", "D", "F", "F", "F", "F", "D", "D", "F"]}, {"code": "NP2", "wins": 7, "mnf_pick": "D", "tb_pts": 40.0, "picks": ["F", "F", "F", "F", "F", "D", "F", "D", "F", "F", "F", "F", "D"]}, {"code": "XXX", "wins": 7, "mnf_pick": "D", "tb_pts": 33.0, "picks": ["F", "F", "F", "F", "D", "D", "D", "D", "F", "D", "D", "F", "D"]}, {"code": "AEC", "wins": 6, "mnf_pick": "F", "tb_pts": 28.0, "picks": ["F", "F", "D", "F", "F", "F", "F", "F", "F", "F", "F", "D", "F"]}, {"code": "BOB", "wins": 6, "mnf_pick": "D", "tb_pts": 36.0, "picks": ["F", "F", "F", "D", "D", "F", "D", "D", "D", "F", "D", "F", "F"]}, {"code": "BVD", "wins": 6, "mnf_pick": "F", "tb_pts": 46.0, "picks": ["D", "D", "D", "F", "F", "F", "D", "D", "F", "F", "F", "F", "F"]}, {"code": "CMS", "wins": 6, "mnf_pick": "F", "tb_pts": 49.0, "picks": ["F", "D", "F", "F", "D", "F", "F", "D", "D", "F", "D", "D", "F"]}, {"code": "GCB3", "wins": 6, "mnf_pick": "D", "tb_pts": 43.0, "picks": ["F", "F", "F", "D", "F", "F", "D", "F", "D", "F", "F", "D", "F"]}, {"code": "JC", "wins": 6, "mnf_pick": "F", "tb_pts": 45.0, "picks": ["F", "D", "F", "D", "F", "F", "F", "D", "F", "F", "F", "D", "F"]}, {"code": "LKB", "wins": 6, "mnf_pick": "D", "tb_pts": 44.0, "picks": ["D", "F", "F", "F", "D", "D", "D", "D", "D", "F", "D", "D", "F"]}, {"code": "OTC", "wins": 6, "mnf_pick": "F", "tb_pts": 34.0, "picks": ["F", "D", "F", "F", "D", "F", "F", "F", "D", "F", "F", "D", "F"]}, {"code": "RH", "wins": 6, "mnf_pick": "D", "tb_pts": 42.0, "picks": ["D", "F", "D", "F", "F", "D", "F", "D", "F", "F", "F", "F", "F"]}, {"code": "TK", "wins": 6, "mnf_pick": "D", "tb_pts": 35.0, "picks": ["D", "F", "F", "F", "F", "F", "F", "D", "F", "D", "F", "D", "F"]}, {"code": "BST1", "wins": 5, "mnf_pick": "F", "tb_pts": 45.0, "picks": ["F", "F", "F", "F", "D", "D", "F", "F", "F", "F", "F", "D", "F"]}, {"code": "FI", "wins": 5, "mnf_pick": "F", "tb_pts": 42.0, "picks": ["F", "F", "D", "D", "D", "F", "F", "F", "F", "D", "F", "F", "D"]}, {"code": "MFA", "wins": 5, "mnf_pick": "D", "tb_pts": 37.0, "picks": ["D", "D", "D", "D", "D", "D", "F", "F", "F", "D", "F", "D", "D"]}, {"code": "NP", "wins": 5, "mnf_pick": "D", "tb_pts": 34.0, "picks": ["D", "F", "F", "F", "D", "D", "F", "D", "F", "F", "F", "D", "F"]}, {"code": "PC", "wins": 5, "mnf_pick": "F", "tb_pts": 46.0, "picks": ["F", "D", "D", "D", "D", "F", "F", "F", "D", "D", "D", "D", "D"]}, {"code": "RUN", "wins": 5, "mnf_pick": "D", "tb_pts": 33.0, "picks": ["F", "D", "D", "F", "F", "F", "F", "D", "D", "D", "F", "F", "F"]}, {"code": "SD", "wins": 5, "mnf_pick": "F", "tb_pts": 43.0, "picks": ["F", "D", "F", "F", "D", "F", "F", "D", "F", "F", "F", "D", "F"]}, {"code": "TR8", "wins": 5, "mnf_pick": "D", "tb_pts": 46.0, "picks": ["D", "F", "F", "F", "D", "D", "F", "D", "D", "F", "F", "D", "D"]}, {"code": "KH", "wins": 4, "mnf_pick": "D", "tb_pts": 42.0, "picks": ["F", "D", "F", "D", "D", "D", "D", "F", "D", "D", "F", "D", "F"]}, {"code": "MPE", "wins": 4, "mnf_pick": "D", "tb_pts": 42.0, "picks": ["F", "D", "F", "D", "F", "D", "F", "D", "F", "D", "F", "D", "F"]}, {"code": "ZIG", "wins": 3, "mnf_pick": "D", "tb_pts": 50.5, "picks": ["F", "F", "F", "D", "F", "D", "F", "D", "F", "D", "F", "D", "F"]}]};
+
+    function renderTable() {
+        const tbody = document.getElementById('leaderboard-body');
+        let html = '';
+        let currentRank = 1;
+        let previousWins = -1;
+
+        data.participants.forEach((p, index) => {
+            if (p.wins !== previousWins) {
+                currentRank = index + 1;
+                previousWins = p.wins;
+            }
+            
+            let pickName = p.mnf_pick === 'F' ? data.mnf.fav : data.mnf.dog;
+            
+            html += `
+                <tr id="row-${p.code}" onclick="showDetails('${p.code}')">
+                    <td style="font-weight:700; color:var(--muted);">${currentRank}</td>
+                    <td style="font-weight:700; color:#fff;">${p.code}</td>
+                    <td style="color:var(--accent); font-weight:700;">${p.wins}</td>
+                    <td><span class="badge ${p.mnf_pick}">${pickName} (${p.mnf_pick})</span></td>
+                    <td>${p.tb_pts}</td>
+                    <td><a href="#details-panel" class="btn-view">View</a></td>
+                </tr>
+            `;
+        });
+        tbody.innerHTML = html;
+        
+        // Auto-select the first user
+        if (data.participants.length > 0) {
+            showDetails(data.participants[0].code);
+        }
+    }
+
+    function showDetails(code) {
+        // Highlight active row
+        document.querySelectorAll('tr').forEach(r => r.classList.remove('active-row'));
+        document.getElementById('row-' + code).classList.add('active-row');
+        
+        // Find participant data
+        const p = data.participants.find(x => x.code === code);
+        const panel = document.getElementById('details-panel');
+        
+        let pickName = p.mnf_pick === 'F' ? data.mnf.fav : data.mnf.dog;
+        
+        let html = `
+            <div class="details-header">
+                <h2>${p.code}'s Picks</h2>
+            </div>
+            <div class="details-stats" style="margin-bottom: 24px;">
+                <div class="stat-box">
+                    <span class="stat-label">Total Wins</span>
+                    <span class="stat-val" style="color:var(--accent)">${p.wins} / 13</span>
+                </div>
+                <div class="stat-box">
+                    <span class="stat-label">MNF Pick</span>
+                    <span class="badge ${p.mnf_pick}" style="font-size:0.9rem">${pickName}</span>
+                </div>
+                <div class="stat-box">
+                    <span class="stat-label">Tiebreaker</span>
+                    <span class="stat-val">${p.tb_pts} Pts</span>
+                </div>
+            </div>
+            <div class="games-list">
+        `;
+                    
+        data.games.forEach((g, i) => {
+            const pick = p.picks[i];
+            const actual = data.actuals[i];
+            const isCorrect = pick === actual;
+            
+            let pickedTeam = pick === 'F' ? g.fav : g.dog;
+            let iconClass = isCorrect ? 'correct' : 'wrong';
+            let iconMark = isCorrect ? '✓' : '✗';
+            
+            html += `
+                <div class="game-row">
+                    <div class="matchup">
+                        <strong>${g.fav}</strong> <span class="spread">(-${g.spread})</span> 
+                        <span style="color:var(--muted); margin:0 6px;">vs</span> 
+                        <strong>${g.dog}</strong>
+                    </div>
+                    <div class="pick-col">
+                        <span class="badge ${pick}">${pickedTeam}</span>
+                        <span class="icon ${iconClass}">${iconMark}</span>
+                    </div>
+                </div>
+            `;
+        });
+        
+        html += `</div>`;
+        panel.innerHTML = html;
+    }
+
+    // Initialize the dashboard on load
+    window.onload = renderTable;
+</script>
+
+</body>
+</html>
