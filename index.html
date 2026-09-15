@@ -23,6 +23,7 @@
             /* Outcome Colors */
             --correct-text: #16a34a;
             --wrong-text: #dc2626;
+            --pending-text: #475569;
         }
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
@@ -52,7 +53,7 @@
             color: #ffffff;
             text-shadow: 2px 3px 5px rgba(0, 0, 0, 0.4);
             margin-bottom: -4px;
-            text-transform: none; /* Prevents the h1 uppercase from overriding the camelCase */
+            text-transform: none; 
         }
 
         /* Shamrock Apostrophe */
@@ -60,7 +61,7 @@
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
             font-size: 0.6em;
             vertical-align: super;
-            color: #ffffff; /* Changed to white */
+            color: #ffffff;
             margin: 0 -2px;
             display: inline-block;
             transform: rotate(10deg);
@@ -81,6 +82,27 @@
             font-weight: 500;
         }
         
+        /* Live Indicator */
+        .live-badge {
+            display: inline-flex;
+            align-items: center;
+            background: #ef4444;
+            color: white;
+            font-size: 0.75rem;
+            font-weight: 800;
+            padding: 4px 8px;
+            border-radius: 4px;
+            margin-top: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.7; }
+            100% { opacity: 1; }
+        }
+
         /* Table Styles */
         .table-container {
             background: var(--panel-bg);
@@ -148,6 +170,10 @@
             text-decoration: line-through;
             text-decoration-thickness: 2px;
             text-decoration-color: rgba(220, 38, 38, 0.4);
+        }
+        .text-pending {
+            color: var(--pending-text) !important;
+            font-weight: 600;
         }
         
         .btn-view {
@@ -302,6 +328,11 @@
             color: #dc2626;
             border: 1px solid #fecaca;
         }
+        .icon.pending {
+            background: #f1f5f9;
+            color: #94a3b8;
+            border: 1px solid #cbd5e1;
+        }
 
         /* View Toggles */
         #list-view { display: block; }
@@ -374,7 +405,8 @@
             <span class="celtic-title">MacMurphy<span class="shamrock-apos">☘</span>s</span> 
             Football Pool
         </h1>
-        <p>Week 1 Results & Dashboard</p>
+        <p>Week 1 Dashboard</p>
+        <span class="live-badge" id="live-indicator">Fetching Live Scores...</span>
     </div>
 
     <!-- Master List View -->
@@ -387,7 +419,7 @@
                         <th>Name</th>
                         <th><span class="th-long">Wins</span><span class="th-short">W</span></th>
                         <th>MNF Pick</th>
-                        <th>TB</th>
+                        <th>TB Diff</th>
                         <th></th>
                     </tr>
                 </thead>
@@ -426,23 +458,175 @@
         return `https://a.espncdn.com/i/teamlogos/nfl/500/${abbr}.png`;
     }
 
-    const data = {"games": [{"fav": "Titans", "spread": 1.5, "dog": "J-E-T-S"}, {"fav": "Cowboys", "spread": 2.5, "dog": "Giants"}, {"fav": "Steelers", "spread": 3.5, "dog": "Falcons"}, {"fav": "Bears", "spread": 2.5, "dog": "Panthers"}, {"fav": "Ravens", "spread": 3.5, "dog": "Colts"}, {"fav": "Bengals", "spread": 3.5, "dog": "Buccaneers"}, {"fav": "Lions", "spread": 7.5, "dog": "Saints"}, {"fav": "Bills", "spread": 1.5, "dog": "Texans"}, {"fav": "Jaguars", "spread": 7.5, "dog": "Browns"}, {"fav": "Raiders", "spread": 3.5, "dog": "Dolphins"}, {"fav": "Chargers", "spread": 10.5, "dog": "Cardinals"}, {"fav": "Vikings", "spread": 1.5, "dog": "Packers"}, {"fav": "Eagles", "spread": 5.5, "dog": "Commanders"}], "mnf": {"fav": "Chiefs", "spread": 2.5, "dog": "Broncos"}, "actuals": ["D", "D", "F", "F", "F", "F", "D", "F", "F", "F", "D", "F", "D"], "participants": [{"code": "CC", "wins": 11, "mnf_pick": "D", "tb_pts": 34.0, "picks": ["F", "D", "F", "F", "D", "F", "D", "F", "F", "F", "D", "F", "D"]}, {"code": "HIC", "wins": 11, "mnf_pick": "D", "tb_pts": 44.0, "picks": ["F", "D", "F", "F", "F", "F", "D", "F", "F", "F", "F", "F", "D"]}, {"code": "ES", "wins": 10, "mnf_pick": "D", "tb_pts": 42.0, "picks": ["D", "F", "F", "F", "F", "F", "F", "F", "F", "F", "D", "D", "D"]}, {"code": "GPO", "wins": 10, "mnf_pick": "D", "tb_pts": 39.0, "picks": ["D", "F", "F", "F", "F", "D", "D", "F", "F", "F", "D", "F", "F"]}, {"code": "JT8", "wins": 10, "mnf_pick": "D", "tb_pts": 34.0, "picks": ["D", "F", "F", "F", "F", "F", "D", "D", "F", "F", "D", "F", "F"]}, {"code": "MJ", "wins": 10, "mnf_pick": "F", "tb_pts": 42.0, "picks": ["F", "F", "D", "F", "F", "F", "D", "F", "F", "F", "D", "F", "D"]}, {"code": "ART", "wins": 9, "mnf_pick": "F", "tb_pts": 43.0, "picks": ["F", "F", "F", "F", "F", "F", "F", "F", "F", "F", "D", "F", "F"]}, {"code": "BVD", "wins": 9, "mnf_pick": "F", "tb_pts": 46.0, "picks": ["D", "D", "D", "F", "F", "F", "D", "D", "F", "F", "F", "F", "F"]}, {"code": "FISH", "wins": 9, "mnf_pick": "D", "tb_pts": 46.0, "picks": ["D", "D", "F", "F", "F", "D", "F", "F", "F", "F", "F", "F", "F"]}, {"code": "FITZ", "wins": 9, "mnf_pick": "F", "tb_pts": 45.0, "picks": ["F", "F", "F", "F", "F", "F", "F", "F", "F", "F", "D", "F", "F"]}, {"code": "GWB", "wins": 9, "mnf_pick": "F", "tb_pts": 45.0, "picks": ["D", "D", "F", "D", "F", "F", "D", "F", "F", "F", "F", "D", "F"]}, {"code": "RIF", "wins": 9, "mnf_pick": "F", "tb_pts": 41.0, "picks": ["D", "D", "F", "D", "F", "F", "D", "D", "D", "F", "D", "F", "F"]}, {"code": "RW", "wins": 9, "mnf_pick": "F", "tb_pts": 47.0, "picks": ["D", "F", "F", "D", "F", "F", "D", "F", "F", "D", "D", "F", "F"]}, {"code": "TREZ", "wins": 9, "mnf_pick": "F", "tb_pts": 41.0, "picks": ["D", "F", "F", "F", "D", "D", "D", "F", "F", "F", "D", "F", "F"]}, {"code": "VE", "wins": 9, "mnf_pick": "D", "tb_pts": 44.0, "picks": ["D", "F", "F", "F", "F", "D", "D", "D", "F", "F", "D", "D", "D"]}, {"code": "BG", "wins": 8, "mnf_pick": "F", "tb_pts": 42.0, "picks": ["F", "D", "F", "F", "F", "F", "F", "D", "F", "F", "F", "D", "D"]}, {"code": "CH", "wins": 8, "mnf_pick": "F", "tb_pts": 43.5, "picks": ["D", "D", "D", "D", "F", "F", "F", "F", "F", "F", "F", "D", "D"]}, {"code": "CN", "wins": 8, "mnf_pick": "F", "tb_pts": 48.0, "picks": ["F", "D", "D", "F", "F", "D", "D", "F", "F", "F", "F", "F", "F"]}, {"code": "DAR", "wins": 8, "mnf_pick": "D", "tb_pts": 51.0, "picks": ["D", "F", "D", "F", "F", "F", "F", "D", "F", "F", "F", "F", "D"]}, {"code": "DD", "wins": 8, "mnf_pick": "D", "tb_pts": 44.0, "picks": ["F", "F", "F", "F", "D", "D", "D", "F", "F", "D", "D", "F", "D"]}, {"code": "DJ", "wins": 8, "mnf_pick": "F", "tb_pts": 46.0, "picks": ["D", "D", "F", "F", "D", "D", "F", "F", "D", "F", "F", "F", "D"]}, {"code": "EF", "wins": 8, "mnf_pick": "D", "tb_pts": 38.0, "picks": ["D", "D", "F", "F", "F", "F", "F", "F", "D", "D", "F", "F", "F"]}, {"code": "JAL", "wins": 8, "mnf_pick": "D", "tb_pts": 45.0, "picks": ["D", "D", "F", "D", "F", "F", "F", "D", "D", "F", "F", "F", "D"]}, {"code": "KT4", "wins": 8, "mnf_pick": "D", "tb_pts": 40.0, "picks": ["F", "F", "F", "F", "D", "D", "D", "F", "F", "D", "D", "F", "D"]}, {"code": "RG", "wins": 8, "mnf_pick": "D", "tb_pts": 40.0, "picks": ["D", "F", "F", "F", "F", "F", "F", "D", "F", "D", "D", "D", "D"]}, {"code": "RGB", "wins": 8, "mnf_pick": "F", "tb_pts": 43.0, "picks": ["F", "F", "F", "F", "F", "D", "D", "F", "D", "F", "D", "F", "F"]}, {"code": "TR82", "wins": 8, "mnf_pick": "F", "tb_pts": 43.0, "picks": ["F", "D", "F", "F", "F", "F", "F", "F", "F", "D", "D", "D", "F"]}, {"code": "VA", "wins": 8, "mnf_pick": "D", "tb_pts": 44.0, "picks": ["D", "F", "F", "F", "D", "F", "F", "F", "F", "F", "D", "D", "F"]}, {"code": "ACM", "wins": 7, "mnf_pick": "F", "tb_pts": 42.0, "picks": ["D", "F", "F", "F", "F", "D", "F", "D", "F", "D", "D", "F", "F"]}, {"code": "BEE", "wins": 7, "mnf_pick": "F", "tb_pts": 42.0, "picks": ["D", "F", "F", "F", "F", "D", "F", "F", "F", "F", "F", "D", "F"]}, {"code": "BST", "wins": 7, "mnf_pick": "D", "tb_pts": 44.0, "picks": ["D", "F", "F", "F", "F", "F", "F", "D", "F", "D", "F", "F", "F"]}, {"code": "EP", "wins": 7, "mnf_pick": "D", "tb_pts": 46.0, "picks": ["F", "F", "D", "D", "F", "D", "F", "F", "F", "F", "D", "F", "D"]}, {"code": "JM", "wins": 7, "mnf_pick": "F", "tb_pts": 42.0, "picks": ["F", "D", "D", "F", "F", "F", "D", "F", "F", "D", "F", "D", "F"]}, {"code": "JT", "wins": 7, "mnf_pick": "D", "tb_pts": 39.0, "picks": ["F", "D", "D", "F", "F", "D", "F", "F", "F", "F", "D", "D", "F"]}, {"code": "NP2", "wins": 7, "mnf_pick": "D", "tb_pts": 40.0, "picks": ["F", "F", "F", "F", "F", "D", "F", "D", "F", "F", "F", "F", "D"]}, {"code": "XXX", "wins": 7, "mnf_pick": "D", "tb_pts": 33.0, "picks": ["F", "F", "F", "F", "D", "D", "D", "D", "F", "D", "D", "F", "D"]}, {"code": "AEC", "wins": 6, "mnf_pick": "F", "tb_pts": 28.0, "picks": ["F", "F", "D", "F", "F", "F", "F", "F", "F", "F", "F", "D", "F"]}, {"code": "BOB", "wins": 6, "mnf_pick": "D", "tb_pts": 36.0, "picks": ["F", "F", "F", "D", "D", "F", "D", "D", "D", "F", "D", "F", "F"]}, {"code": "CMS", "wins": 6, "mnf_pick": "F", "tb_pts": 49.0, "picks": ["F", "D", "F", "F", "D", "F", "F", "D", "D", "F", "D", "D", "F"]}, {"code": "GCB3", "wins": 6, "mnf_pick": "D", "tb_pts": 43.0, "picks": ["F", "F", "F", "D", "F", "F", "D", "F", "D", "F", "F", "D", "F"]}, {"code": "JC", "wins": 6, "mnf_pick": "F", "tb_pts": 45.0, "picks": ["F", "D", "F", "D", "F", "F", "F", "D", "F", "F", "F", "D", "F"]}, {"code": "LKB", "wins": 6, "mnf_pick": "D", "tb_pts": 44.0, "picks": ["D", "F", "F", "F", "D", "D", "D", "D", "D", "F", "D", "D", "F"]}, {"code": "OTC", "wins": 6, "mnf_pick": "F", "tb_pts": 34.0, "picks": ["F", "D", "F", "F", "D", "F", "F", "F", "D", "F", "F", "D", "F"]}, {"code": "RH", "wins": 6, "mnf_pick": "D", "tb_pts": 42.0, "picks": ["D", "F", "D", "F", "F", "D", "F", "D", "F", "F", "F", "F", "F"]}, {"code": "SD", "wins": 6, "mnf_pick": "F", "tb_pts": 43.0, "picks": ["F", "D", "F", "F", "D", "F", "F", "D", "F", "F", "F", "D", "F"]}, {"code": "TK", "wins": 6, "mnf_pick": "D", "tb_pts": 35.0, "picks": ["D", "F", "F", "F", "F", "F", "F", "D", "F", "D", "F", "D", "F"]}, {"code": "BST1", "wins": 5, "mnf_pick": "F", "tb_pts": 45.0, "picks": ["F", "F", "F", "F", "D", "D", "F", "F", "F", "F", "F", "D", "F"]}, {"code": "FI", "wins": 5, "mnf_pick": "F", "tb_pts": 42.0, "picks": ["F", "F", "D", "D", "D", "F", "F", "F", "F", "D", "F", "F", "D"]}, {"code": "MFA", "wins": 5, "mnf_pick": "D", "tb_pts": 37.0, "picks": ["D", "D", "D", "D", "D", "D", "F", "F", "F", "D", "F", "D", "D"]}, {"code": "NP", "wins": 5, "mnf_pick": "D", "tb_pts": 34.0, "picks": ["D", "F", "F", "F", "D", "D", "F", "D", "F", "F", "F", "D", "F"]}, {"code": "PC", "wins": 5, "mnf_pick": "F", "tb_pts": 46.0, "picks": ["F", "D", "D", "D", "D", "F", "F", "F", "D", "D", "D", "D", "D"]}, {"code": "RUN", "wins": 5, "mnf_pick": "D", "tb_pts": 33.0, "picks": ["F", "D", "D", "F", "F", "F", "F", "D", "D", "D", "F", "F", "F"]}, {"code": "TR8", "wins": 5, "mnf_pick": "D", "tb_pts": 46.0, "picks": ["D", "F", "F", "F", "D", "D", "F", "D", "D", "F", "F", "D", "D"]}, {"code": "KH", "wins": 4, "mnf_pick": "D", "tb_pts": 42.0, "picks": ["F", "D", "F", "D", "D", "D", "D", "F", "D", "D", "F", "D", "F"]}, {"code": "MPE", "wins": 4, "mnf_pick": "D", "tb_pts": 42.0, "picks": ["F", "D", "F", "D", "F", "D", "F", "D", "F", "D", "F", "D", "F"]}, {"code": "ZIG", "wins": 3, "mnf_pick": "D", "tb_pts": 50.5, "picks": ["F", "F", "F", "D", "F", "D", "F", "D", "F", "D", "F", "D", "F"]}]};
+    // Base Pool Data Matrix
+    const data = {
+        "games": [{"fav": "Titans", "spread": 1.5, "dog": "J-E-T-S"}, {"fav": "Cowboys", "spread": 2.5, "dog": "Giants"}, {"fav": "Steelers", "spread": 3.5, "dog": "Falcons"}, {"fav": "Bears", "spread": 2.5, "dog": "Panthers"}, {"fav": "Ravens", "spread": 3.5, "dog": "Colts"}, {"fav": "Bengals", "spread": 3.5, "dog": "Buccaneers"}, {"fav": "Lions", "spread": 7.5, "dog": "Saints"}, {"fav": "Bills", "spread": 1.5, "dog": "Texans"}, {"fav": "Jaguars", "spread": 7.5, "dog": "Browns"}, {"fav": "Raiders", "spread": 3.5, "dog": "Dolphins"}, {"fav": "Chargers", "spread": 10.5, "dog": "Cardinals"}, {"fav": "Vikings", "spread": 1.5, "dog": "Packers"}, {"fav": "Eagles", "spread": 5.5, "dog": "Commanders"}], 
+        "mnf": {"fav": "Chiefs", "spread": 2.5, "dog": "Broncos"}, 
+        "actuals": [null, null, null, null, null, null, null, null, null, null, null, null, null], // To be populated dynamically
+        "participants": [
+            {"code": "CC", "mnf_pick": "D", "tb_pts": 34.0, "picks": ["F", "D", "F", "F", "D", "F", "D", "F", "F", "F", "D", "F", "D"]}, 
+            {"code": "HIC", "mnf_pick": "D", "tb_pts": 44.0, "picks": ["F", "D", "F", "F", "F", "F", "D", "F", "F", "F", "F", "F", "D"]}, 
+            {"code": "ES", "mnf_pick": "D", "tb_pts": 42.0, "picks": ["D", "F", "F", "F", "F", "F", "F", "F", "F", "F", "D", "D", "D"]}, 
+            {"code": "GPO", "mnf_pick": "D", "tb_pts": 39.0, "picks": ["D", "F", "F", "F", "F", "D", "D", "F", "F", "F", "D", "F", "F"]}, 
+            {"code": "JT8", "mnf_pick": "D", "tb_pts": 34.0, "picks": ["D", "F", "F", "F", "F", "F", "D", "D", "F", "F", "D", "F", "F"]}, 
+            {"code": "MJ", "mnf_pick": "F", "tb_pts": 42.0, "picks": ["F", "F", "D", "F", "F", "F", "D", "F", "F", "F", "D", "F", "D"]}, 
+            {"code": "ART", "mnf_pick": "F", "tb_pts": 43.0, "picks": ["F", "F", "F", "F", "F", "F", "F", "F", "F", "F", "D", "F", "F"]}, 
+            {"code": "BVD", "mnf_pick": "F", "tb_pts": 46.0, "picks": ["D", "D", "D", "F", "F", "F", "D", "D", "F", "F", "F", "F", "F"]}, 
+            {"code": "FISH", "mnf_pick": "D", "tb_pts": 46.0, "picks": ["D", "D", "F", "F", "F", "D", "F", "F", "F", "F", "F", "F", "F"]}, 
+            {"code": "FITZ", "mnf_pick": "F", "tb_pts": 45.0, "picks": ["F", "F", "F", "F", "F", "F", "F", "F", "F", "F", "D", "F", "F"]}, 
+            {"code": "GWB", "mnf_pick": "F", "tb_pts": 45.0, "picks": ["D", "D", "F", "D", "F", "F", "D", "F", "F", "F", "F", "D", "F"]}, 
+            {"code": "RIF", "mnf_pick": "F", "tb_pts": 41.0, "picks": ["D", "D", "F", "D", "F", "F", "D", "D", "D", "F", "D", "F", "F"]}, 
+            {"code": "RW", "mnf_pick": "F", "tb_pts": 47.0, "picks": ["D", "F", "F", "D", "F", "F", "D", "F", "F", "D", "D", "F", "F"]}, 
+            {"code": "TREZ", "mnf_pick": "F", "tb_pts": 41.0, "picks": ["D", "F", "F", "F", "D", "D", "D", "F", "F", "F", "D", "F", "F"]}, 
+            {"code": "VE", "mnf_pick": "D", "tb_pts": 44.0, "picks": ["D", "F", "F", "F", "F", "D", "D", "D", "F", "F", "D", "D", "D"]}, 
+            {"code": "BG", "mnf_pick": "F", "tb_pts": 42.0, "picks": ["F", "D", "F", "F", "F", "F", "F", "D", "F", "F", "F", "D", "D"]}, 
+            {"code": "CH", "mnf_pick": "F", "tb_pts": 43.5, "picks": ["D", "D", "D", "D", "F", "F", "F", "F", "F", "F", "F", "D", "D"]}, 
+            {"code": "CN", "mnf_pick": "F", "tb_pts": 48.0, "picks": ["F", "D", "D", "F", "F", "D", "D", "F", "F", "F", "F", "F", "F"]}, 
+            {"code": "DAR", "mnf_pick": "D", "tb_pts": 51.0, "picks": ["D", "F", "D", "F", "F", "F", "F", "D", "F", "F", "F", "F", "D"]}, 
+            {"code": "DD", "mnf_pick": "D", "tb_pts": 44.0, "picks": ["F", "F", "F", "F", "D", "D", "D", "F", "F", "D", "D", "F", "D"]}, 
+            {"code": "DJ", "mnf_pick": "F", "tb_pts": 46.0, "picks": ["D", "D", "F", "F", "D", "D", "F", "F", "D", "F", "F", "F", "D"]}, 
+            {"code": "EF", "mnf_pick": "D", "tb_pts": 38.0, "picks": ["D", "D", "F", "F", "F", "F", "F", "F", "D", "D", "F", "F", "F"]}, 
+            {"code": "JAL", "mnf_pick": "D", "tb_pts": 45.0, "picks": ["D", "D", "F", "D", "F", "F", "F", "D", "D", "F", "F", "F", "D"]}, 
+            {"code": "KT4", "mnf_pick": "D", "tb_pts": 40.0, "picks": ["F", "F", "F", "F", "D", "D", "D", "F", "F", "D", "D", "F", "D"]}, 
+            {"code": "RG", "mnf_pick": "D", "tb_pts": 40.0, "picks": ["D", "F", "F", "F", "F", "F", "F", "D", "F", "D", "D", "D", "D"]}, 
+            {"code": "RGB", "mnf_pick": "F", "tb_pts": 43.0, "picks": ["F", "F", "F", "F", "F", "D", "D", "F", "D", "F", "D", "F", "F"]}, 
+            {"code": "TR82", "mnf_pick": "F", "tb_pts": 43.0, "picks": ["F", "D", "F", "F", "F", "F", "F", "F", "F", "D", "D", "D", "F"]}, 
+            {"code": "VA", "mnf_pick": "D", "tb_pts": 44.0, "picks": ["D", "F", "F", "F", "D", "F", "F", "F", "F", "F", "D", "D", "F"]}, 
+            {"code": "ACM", "mnf_pick": "F", "tb_pts": 42.0, "picks": ["D", "F", "F", "F", "F", "D", "F", "D", "F", "D", "D", "F", "F"]}, 
+            {"code": "BEE", "mnf_pick": "F", "tb_pts": 42.0, "picks": ["D", "F", "F", "F", "F", "D", "F", "F", "F", "F", "F", "D", "F"]}, 
+            {"code": "BST", "mnf_pick": "D", "tb_pts": 44.0, "picks": ["D", "F", "F", "F", "F", "F", "F", "D", "F", "D", "F", "F", "F"]}, 
+            {"code": "EP", "mnf_pick": "D", "tb_pts": 46.0, "picks": ["F", "F", "D", "D", "F", "D", "F", "F", "F", "F", "D", "F", "D"]}, 
+            {"code": "JM", "mnf_pick": "F", "tb_pts": 42.0, "picks": ["F", "D", "D", "F", "F", "F", "D", "F", "F", "D", "F", "D", "F"]}, 
+            {"code": "JT", "mnf_pick": "D", "tb_pts": 39.0, "picks": ["F", "D", "D", "F", "F", "D", "F", "F", "F", "F", "D", "D", "F"]}, 
+            {"code": "NP2", "mnf_pick": "D", "tb_pts": 40.0, "picks": ["F", "F", "F", "F", "F", "D", "F", "D", "F", "F", "F", "F", "D"]}, 
+            {"code": "XXX", "mnf_pick": "D", "tb_pts": 33.0, "picks": ["F", "F", "F", "F", "D", "D", "D", "D", "F", "D", "D", "F", "D"]}, 
+            {"code": "AEC", "mnf_pick": "F", "tb_pts": 28.0, "picks": ["F", "F", "D", "F", "F", "F", "F", "F", "F", "F", "F", "D", "F"]}, 
+            {"code": "BOB", "mnf_pick": "D", "tb_pts": 36.0, "picks": ["F", "F", "F", "D", "D", "F", "D", "D", "D", "F", "D", "F", "F"]}, 
+            {"code": "CMS", "mnf_pick": "F", "tb_pts": 49.0, "picks": ["F", "D", "F", "F", "D", "F", "F", "D", "D", "F", "D", "D", "F"]}, 
+            {"code": "GCB3", "mnf_pick": "D", "tb_pts": 43.0, "picks": ["F", "F", "F", "D", "F", "F", "D", "F", "D", "F", "F", "D", "F"]}, 
+            {"code": "JC", "mnf_pick": "F", "tb_pts": 45.0, "picks": ["F", "D", "F", "D", "F", "F", "F", "D", "F", "F", "F", "D", "F"]}, 
+            {"code": "LKB", "mnf_pick": "D", "tb_pts": 44.0, "picks": ["D", "F", "F", "F", "D", "D", "D", "D", "D", "F", "D", "D", "F"]}, 
+            {"code": "OTC", "mnf_pick": "F", "tb_pts": 34.0, "picks": ["F", "D", "F", "F", "D", "F", "F", "F", "D", "F", "F", "D", "F"]}, 
+            {"code": "RH", "mnf_pick": "D", "tb_pts": 42.0, "picks": ["D", "F", "D", "F", "F", "D", "F", "D", "F", "F", "F", "F", "F"]}, 
+            {"code": "SD", "mnf_pick": "F", "tb_pts": 43.0, "picks": ["F", "D", "F", "F", "D", "F", "F", "D", "F", "F", "F", "D", "F"]}, 
+            {"code": "TK", "mnf_pick": "D", "tb_pts": 35.0, "picks": ["D", "F", "F", "F", "F", "F", "F", "D", "F", "D", "F", "D", "F"]}, 
+            {"code": "BST1", "mnf_pick": "F", "tb_pts": 45.0, "picks": ["F", "F", "F", "F", "D", "D", "F", "F", "F", "F", "F", "D", "F"]}, 
+            {"code": "FI", "mnf_pick": "F", "tb_pts": 42.0, "picks": ["F", "F", "D", "D", "D", "F", "F", "F", "F", "D", "F", "F", "D"]}, 
+            {"code": "MFA", "mnf_pick": "D", "tb_pts": 37.0, "picks": ["D", "D", "D", "D", "D", "D", "F", "F", "F", "D", "F", "D", "D"]}, 
+            {"code": "NP", "mnf_pick": "D", "tb_pts": 34.0, "picks": ["D", "F", "F", "F", "D", "D", "F", "D", "F", "F", "F", "D", "F"]}, 
+            {"code": "PC", "mnf_pick": "F", "tb_pts": 46.0, "picks": ["F", "D", "D", "D", "D", "F", "F", "F", "D", "D", "D", "D", "D"]}, 
+            {"code": "RUN", "mnf_pick": "D", "tb_pts": 33.0, "picks": ["F", "D", "D", "F", "F", "F", "F", "D", "D", "D", "F", "F", "F"]}, 
+            {"code": "TR8", "mnf_pick": "D", "tb_pts": 46.0, "picks": ["D", "F", "F", "F", "D", "D", "F", "D", "D", "F", "F", "D", "D"]}, 
+            {"code": "KH", "mnf_pick": "D", "tb_pts": 42.0, "picks": ["F", "D", "F", "D", "D", "D", "D", "F", "D", "D", "F", "D", "F"]}, 
+            {"code": "MPE", "mnf_pick": "D", "tb_pts": 42.0, "picks": ["F", "D", "F", "D", "F", "D", "F", "D", "F", "D", "F", "D", "F"]}, 
+            {"code": "ZIG", "mnf_pick": "D", "tb_pts": 50.5, "picks": ["F", "F", "F", "D", "F", "D", "F", "D", "F", "D", "F", "D", "F"]}
+        ]
+    };
+
+    let mnfTotalScore = 0;
+    let mnfStarted = false;
+
+    // Fetch Live Scores from ESPN NFL API
+    async function initDashboard() {
+        try {
+            const res = await fetch('https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard?seasontype=2&week=1');
+            const espnData = await res.json();
+            
+            const liveScores = {};
+            espnData.events.forEach(evt => {
+                evt.competitions[0].competitors.forEach(comp => {
+                    liveScores[comp.team.abbreviation.toLowerCase()] = parseInt(comp.score, 10);
+                });
+            });
+
+            // Update main games with live score differences
+            data.games.forEach((g, i) => {
+                const favAbbr = logoMap[g.fav].toLowerCase();
+                const dogAbbr = logoMap[g.dog].toLowerCase();
+                
+                if (liveScores[favAbbr] !== undefined && liveScores[dogAbbr] !== undefined) {
+                    const diff = liveScores[favAbbr] - liveScores[dogAbbr];
+                    // Compare difference to the spread
+                    data.actuals[i] = diff > g.spread ? 'F' : 'D';
+                } else {
+                    data.actuals[i] = null; // Game pending
+                }
+            });
+
+            // Update MNF Tiebreaker Game
+            const mnfFavAbbr = logoMap[data.mnf.fav].toLowerCase();
+            const mnfDogAbbr = logoMap[data.mnf.dog].toLowerCase();
+            let mnfActual = null;
+
+            if (liveScores[mnfFavAbbr] !== undefined && liveScores[mnfDogAbbr] !== undefined) {
+                mnfStarted = true;
+                mnfTotalScore = liveScores[mnfFavAbbr] + liveScores[mnfDogAbbr];
+                const diff = liveScores[mnfFavAbbr] - liveScores[mnfDogAbbr];
+                mnfActual = diff > data.mnf.spread ? 'F' : 'D';
+            }
+
+            // Dynamically score all participants based on live board
+            data.participants.forEach(p => {
+                let wins = 0;
+                p.picks.forEach((pick, i) => {
+                    if (pick === data.actuals[i]) wins++;
+                });
+                
+                // Add MNF outcome to total wins
+                if (mnfActual !== null && p.mnf_pick === mnfActual) {
+                    wins++;
+                }
+                
+                p.wins = wins;
+                p.tb_diff = mnfStarted ? Math.abs(p.tb_pts - mnfTotalScore) : 0;
+            });
+
+            // Re-rank Leaderboard: Sort by Wins (Desc), then Tiebreaker Difference (Asc)
+            data.participants.sort((a, b) => {
+                if (b.wins !== a.wins) return b.wins - a.wins;
+                return a.tb_diff - b.tb_diff;
+            });
+            
+            document.getElementById('live-indicator').innerHTML = "Live Scores Connected";
+            document.getElementById('live-indicator').style.background = "#16a34a"; // Green when loaded
+            
+        } catch(e) {
+            console.error("ESPN API Fetch failed", e);
+            document.getElementById('live-indicator').innerHTML = "Live Feed Offline";
+            document.getElementById('live-indicator').style.background = "#64748b";
+        }
+
+        renderTable();
+        
+        // Auto-select Fitz
+        const defaultUser = data.participants.find(p => p.code === 'FITZ');
+        if (defaultUser) {
+            showDetails('FITZ');
+        } else if (data.participants.length > 0) {
+            showDetails(data.participants[0].code);
+        }
+    }
 
     function renderTable() {
         const tbody = document.getElementById('leaderboard-body');
         let html = '';
         let currentRank = 1;
         let previousWins = -1;
+        let previousTbDiff = -1;
 
         data.participants.forEach((p, index) => {
-            if (p.wins !== previousWins) {
+            // Rank logically based on ties and tiebreaker diffs
+            if (p.wins !== previousWins || p.tb_diff !== previousTbDiff) {
                 currentRank = index + 1;
                 previousWins = p.wins;
+                previousTbDiff = p.tb_diff;
             }
             
             let pickName = p.mnf_pick === 'F' ? data.mnf.fav : data.mnf.dog;
             let mobilePickName = pickName.substring(0,3).toUpperCase(); 
             
+            let tbDisplay = mnfStarted ? `${p.tb_pts} <span style="color:var(--text-muted);font-size:0.8em;">(±${p.tb_diff})</span>` : p.tb_pts;
+
             html += `
                 <tr onclick="showDetails('${p.code}')">
                     <td style="font-weight:700; color:var(--text-muted);">${currentRank}</td>
@@ -455,7 +639,7 @@
                             <span class="th-short">${mobilePickName}</span>
                         </span>
                     </td>
-                    <td style="font-weight:600;">${p.tb_pts}</td>
+                    <td style="font-weight:600;">${tbDisplay}</td>
                     <td><a href="#" onclick="event.preventDefault();" class="btn-view">View</a></td>
                 </tr>
             `;
@@ -473,6 +657,7 @@
         if (!p) return;
         
         let mnfPickName = p.mnf_pick === 'F' ? data.mnf.fav : data.mnf.dog;
+        let diffText = mnfStarted ? `±${p.tb_diff} off actual` : `Awaiting MNF`;
         
         let html = `
             <div class="details-header">
@@ -481,7 +666,7 @@
             <div class="details-stats">
                 <div class="stat-box">
                     <span class="stat-label">Total Wins</span>
-                    <span class="stat-val highlight">${p.wins} / 13</span>
+                    <span class="stat-val highlight">${p.wins}</span>
                 </div>
                 <div class="stat-box">
                     <span class="stat-label">MNF Pick</span>
@@ -491,8 +676,8 @@
                     </span>
                 </div>
                 <div class="stat-box">
-                    <span class="stat-label">Tiebreaker</span>
-                    <span class="stat-val">${p.tb_pts} Pts</span>
+                    <span class="stat-label">Tiebreaker (${p.tb_pts})</span>
+                    <span class="stat-val" style="font-size:1rem; color:var(--text-muted);">${diffText}</span>
                 </div>
             </div>
             <div class="games-list">
@@ -501,12 +686,13 @@
         data.games.forEach((g, i) => {
             const pick = p.picks[i];
             const actual = data.actuals[i];
-            const isCorrect = pick === actual;
             
+            let isCorrect = (actual === null) ? null : (pick === actual);
             let pickedTeam = pick === 'F' ? g.fav : g.dog;
-            let iconClass = isCorrect ? 'correct' : 'wrong';
-            let iconMark = isCorrect ? '✓' : '✗';
-            let textClass = isCorrect ? 'text-correct' : 'text-wrong';
+            
+            let iconClass = isCorrect === null ? 'pending' : (isCorrect ? 'correct' : 'wrong');
+            let iconMark = isCorrect === null ? '-' : (isCorrect ? '✓' : '✗');
+            let textClass = isCorrect === null ? 'text-pending' : (isCorrect ? 'text-correct' : 'text-wrong');
             
             html += `
                 <div class="game-row">
@@ -542,7 +728,8 @@
         window.scrollTo(0, 0);
     }
 
-    window.onload = renderTable;
+    // Load data and fetch API
+    window.onload = initDashboard;
 </script>
 
 </body>
