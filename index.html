@@ -3,27 +3,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>MacMurphy's Week 1 Football Pool</title>
+    <title>MacMurphy's Week 1 Final Results</title>
     <style>
-        /* Import a Celtic-style font for MacMurphy's */
         @import url('https://fonts.googleapis.com/css2?family=Uncial+Antiqua&display=swap');
 
         :root {
-            /* Global Background - Dark Green */
-            --bg: #114b21; 
+            var(--bg): #114b21; 
+            --bg: #114b21;
             --text-main: #ffffff;
-            
-            /* Light Panels */
             --panel-bg: #ffffff;
             --text-dark: #0f172a;
             --text-muted: #64748b;
             --border-light: #e2e8f0;
             --hover-light: #f8fafc;
-            
-            /* Outcome Colors */
             --correct-text: #16a34a;
             --wrong-text: #dc2626;
-            --pending-text: #475569;
+            --gold: #d97706;
+            --silver: #64748b;
         }
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
@@ -33,18 +29,13 @@
             padding: 20px;
             -webkit-font-smoothing: antialiased;
         }
-        .container {
-            max-width: 900px;
-            margin: 0 auto;
-        }
+        .container { max-width: 900px; margin: 0 auto; }
         .header {
             text-align: center;
             margin-bottom: 24px;
             border-bottom: 2px solid rgba(255, 255, 255, 0.2);
             padding-bottom: 16px;
         }
-        
-        /* Updated Celtic Title Styling */
         .celtic-title {
             font-family: 'Uncial Antiqua', cursive;
             font-size: 4rem;
@@ -55,19 +46,16 @@
             margin-bottom: -4px;
             text-transform: none; 
         }
-
-        /* Shamrock Apostrophe */
         .shamrock-apos {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
             font-size: 0.6em;
             vertical-align: super;
-            color: #ffffff;
+            color: #ffffff; 
             margin: 0 -2px;
             display: inline-block;
             transform: rotate(10deg);
             text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
         }
-        
         .header h1 {
             margin: 0;
             color: #e2e8f0;
@@ -76,34 +64,11 @@
             text-transform: uppercase;
         }
         .header p {
-            color: rgba(255, 255, 255, 0.85); 
+            color: #bbf7d0; 
             margin: 8px 0 0 0;
-            font-size: 1rem;
-            font-weight: 500;
+            font-size: 1.05rem;
+            font-weight: 700;
         }
-        
-        /* Live Indicator */
-        .live-badge {
-            display: inline-flex;
-            align-items: center;
-            background: #ef4444;
-            color: white;
-            font-size: 0.75rem;
-            font-weight: 800;
-            padding: 4px 8px;
-            border-radius: 4px;
-            margin-top: 8px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            animation: pulse 2s infinite;
-        }
-        @keyframes pulse {
-            0% { opacity: 1; }
-            50% { opacity: 0.7; }
-            100% { opacity: 1; }
-        }
-
-        /* Table Styles */
         .table-container {
             background: var(--panel-bg);
             color: var(--text-dark);
@@ -113,288 +78,87 @@
             -webkit-overflow-scrolling: touch;
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
         }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            text-align: left;
-            white-space: nowrap;
-        }
+        table { width: 100%; border-collapse: collapse; text-align: left; white-space: nowrap; }
         th {
-            background: #f1f5f9;
-            color: #475569;
-            padding: 14px 12px;
-            font-size: 0.8rem;
-            text-transform: uppercase;
-            font-weight: 700;
-            border-bottom: 2px solid #cbd5e1;
-            position: sticky;
-            top: 0;
-            z-index: 10;
+            background: #f1f5f9; color: #475569; padding: 14px 12px; font-size: 0.8rem;
+            text-transform: uppercase; font-weight: 700; border-bottom: 2px solid #cbd5e1;
+            position: sticky; top: 0; z-index: 10;
         }
-        td {
-            padding: 12px;
-            border-bottom: 1px solid var(--border-light);
-            font-size: 0.95rem;
-            vertical-align: middle;
-        }
-        tr {
-            cursor: pointer;
-            transition: background-color 0.15s ease;
-        }
-        tr:hover {
-            background-color: var(--hover-light);
-        }
-        
-        /* Badges & Buttons */
+        td { padding: 12px; border-bottom: 1px solid var(--border-light); font-size: 0.95rem; vertical-align: middle; }
+        tr { cursor: pointer; transition: background-color 0.15s ease; }
+        tr:hover { background-color: var(--hover-light); }
         .badge {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            padding: 4px 10px;
-            border-radius: 6px;
-            font-size: 0.85rem;
-            font-weight: 700;
-            text-align: center;
-            gap: 8px;
-            border: 1px solid var(--border-light);
-            background: #f8fafc;
-            color: var(--text-dark);
+            display: inline-flex; align-items: center; justify-content: center; padding: 4px 10px;
+            border-radius: 6px; font-size: 0.85rem; font-weight: 700; text-align: center; gap: 8px;
+            border: 1px solid var(--border-light); background: #f8fafc; color: var(--text-dark);
         }
-        .text-correct {
-            color: var(--correct-text) !important;
-            font-weight: 800;
-        }
+        .text-correct { color: var(--correct-text) !important; font-weight: 800; }
         .text-wrong {
-            color: var(--wrong-text) !important;
-            font-weight: 800;
-            text-decoration: line-through;
-            text-decoration-thickness: 2px;
-            text-decoration-color: rgba(220, 38, 38, 0.4);
+            color: var(--wrong-text) !important; font-weight: 800; text-decoration: line-through;
+            text-decoration-thickness: 2px; text-decoration-color: rgba(220, 38, 38, 0.4);
         }
-        .text-pending {
-            color: var(--pending-text) !important;
-            font-weight: 600;
-        }
-        
         .btn-view {
-            color: #0284c7;
-            text-decoration: none;
-            font-weight: 700;
-            background: #e0f2fe;
-            padding: 6px 14px;
-            border-radius: 6px;
-            font-size: 0.85rem;
-            pointer-events: none;
+            color: #0284c7; text-decoration: none; font-weight: 700; background: #e0f2fe;
+            padding: 6px 14px; border-radius: 6px; font-size: 0.85rem; pointer-events: none;
         }
         .btn-back {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            color: #114b21;
-            text-decoration: none;
-            font-weight: 800;
-            background: #ffffff;
-            padding: 10px 16px;
-            border-radius: 8px;
-            margin-bottom: 16px;
-            transition: background 0.2s;
-            cursor: pointer;
-            border: 1px solid var(--border-light);
-            box-shadow: 0 2px 4px rgba(0,0,0,0.15);
+            display: inline-flex; align-items: center; justify-content: center; color: #114b21;
+            text-decoration: none; font-weight: 800; background: #ffffff; padding: 10px 16px;
+            border-radius: 8px; margin-bottom: 16px; transition: background 0.2s; cursor: pointer;
+            border: 1px solid var(--border-light); box-shadow: 0 2px 4px rgba(0,0,0,0.15);
         }
-        .btn-back:hover {
-            background: #f0fdf4;
-        }
-        
-        /* Logos */
-        .team-logo {
-            width: 24px;
-            height: 24px;
-            object-fit: contain;
-            vertical-align: middle;
-        }
-        .team-logo-small {
-            width: 18px;
-            height: 18px;
-            object-fit: contain;
-        }
+        .btn-back:hover { background: #f0fdf4; }
+        .team-logo { width: 24px; height: 24px; object-fit: contain; vertical-align: middle; }
+        .team-logo-small { width: 18px; height: 18px; object-fit: contain; }
 
-        /* Details View */
         .details-panel {
-            background: var(--panel-bg);
-            color: var(--text-dark);
-            border: 1px solid var(--border-light);
-            border-radius: 12px;
-            padding: 24px;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            background: var(--panel-bg); color: var(--text-dark); border: 1px solid var(--border-light);
+            border-radius: 12px; padding: 24px; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
         }
-        .details-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-            padding-bottom: 12px;
-            border-bottom: 1px solid var(--border-light);
-        }
-        .details-header h2 {
-            margin: 0;
-            color: var(--text-dark);
-            font-size: 1.8rem;
-        }
-        .details-stats {
-            display: flex;
-            gap: 12px;
-            margin-bottom: 24px;
-        }
-        .stat-box {
-            flex: 1;
-            background: #f8fafc;
-            padding: 12px;
-            border-radius: 8px;
-            border: 1px solid var(--border-light);
-            text-align: center;
-        }
-        .stat-label {
-            display: block;
-            color: var(--text-muted);
-            font-size: 0.7rem;
-            text-transform: uppercase;
-            margin-bottom: 6px;
-            font-weight: 700;
-        }
-        .stat-val {
-            font-weight: 900;
-            color: var(--text-dark);
-            font-size: 1.2rem;
-        }
-        .stat-val.highlight {
-            color: #0284c7;
-        }
+        .details-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-bottom: 12px; border-bottom: 1px solid var(--border-light); }
+        .details-header h2 { margin: 0; color: var(--text-dark); font-size: 1.8rem; }
+        .details-stats { display: flex; gap: 12px; margin-bottom: 24px; }
+        .stat-box { flex: 1; background: #f8fafc; padding: 12px; border-radius: 8px; border: 1px solid var(--border-light); text-align: center; }
+        .stat-label { display: block; color: var(--text-muted); font-size: 0.7rem; text-transform: uppercase; margin-bottom: 6px; font-weight: 700; }
+        .stat-val { font-weight: 900; color: var(--text-dark); font-size: 1.2rem; }
+        .stat-val.highlight { color: #0284c7; }
         
-        /* Game List */
-        .game-row {
-            display: flex;
-            align-items: center;
-            padding: 14px 0;
-            border-bottom: 1px solid var(--border-light);
-            font-size: 0.95rem;
-        }
-        .game-row:last-child {
-            border-bottom: none;
-        }
-        .matchup {
-            flex: 1;
-            display: flex;
-            flex-wrap: wrap;
-            align-items: center;
-            gap: 6px;
-            font-weight: 600;
-        }
-        .team-block {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            white-space: nowrap;
-        }
-        .spread {
-            color: var(--text-muted);
-            font-size: 0.8rem;
-            font-weight: 500;
-        }
-        .pick-col {
-            flex: 0 0 160px;
-            display: flex;
-            align-items: center;
-            justify-content: flex-end;
-            gap: 10px;
-        }
-        .icon {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            width: 24px;
-            height: 24px;
-            border-radius: 50%;
-            font-size: 13px;
-            font-weight: bold;
-        }
-        .icon.correct {
-            background: #dcfce7;
-            color: #16a34a;
-            border: 1px solid #bbf7d0;
-        }
-        .icon.wrong {
-            background: #fee2e2;
-            color: #dc2626;
-            border: 1px solid #fecaca;
-        }
-        .icon.pending {
-            background: #f1f5f9;
-            color: #94a3b8;
-            border: 1px solid #cbd5e1;
-        }
+        .game-row { display: flex; align-items: center; padding: 14px 0; border-bottom: 1px solid var(--border-light); font-size: 0.95rem; }
+        .game-row:last-child { border-bottom: none; }
+        .matchup { flex: 1; display: flex; flex-wrap: wrap; align-items: center; gap: 6px; font-weight: 600; }
+        .team-block { display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; }
+        .spread { color: var(--text-muted); font-size: 0.8rem; font-weight: 500; }
+        .pick-col { flex: 0 0 160px; display: flex; align-items: center; justify-content: flex-end; gap: 10px; }
+        .icon { display: inline-flex; align-items: center; justify-content: center; width: 24px; height: 24px; border-radius: 50%; font-size: 13px; font-weight: bold; }
+        .icon.correct { background: #dcfce7; color: #16a34a; border: 1px solid #bbf7d0; }
+        .icon.wrong { background: #fee2e2; color: #dc2626; border: 1px solid #fecaca; }
 
-        /* View Toggles */
         #list-view { display: block; }
         #detail-view { display: none; }
 
-        /* --- MOBILE OPTIMIZATIONS --- */
         @media (max-width: 600px) {
             body { padding: 12px; }
             .celtic-title { font-size: 2.5rem; }
             .shamrock-apos { font-size: 0.55em; margin: 0 -1px; }
             .header h1 { font-size: 1.2rem; }
             .header p { font-size: 0.9rem; }
-            
             .table-container { border-radius: 8px; }
             th { padding: 12px 8px; font-size: 0.75rem; }
             td { padding: 12px 8px; font-size: 0.9rem; }
-            
             .th-long { display: none; }
             .th-short { display: inline; }
-            
             .btn-view { padding: 6px 8px; font-size: 0.75rem; }
-            .btn-back {
-                width: 100%;
-                box-sizing: border-box;
-                font-size: 1rem;
-                padding: 12px;
-            }
+            .btn-back { width: 100%; box-sizing: border-box; font-size: 1rem; padding: 12px; }
             .details-panel { padding: 16px; }
             .details-header h2 { font-size: 1.5rem; }
-            
-            .details-stats {
-                flex-direction: column;
-                gap: 8px;
-            }
-            .stat-box {
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-                text-align: left;
-                padding: 10px 16px;
-            }
+            .details-stats { flex-direction: column; gap: 8px; }
+            .stat-box { display: flex; justify-content: space-between; align-items: center; text-align: left; padding: 10px 16px; }
             .stat-label { margin-bottom: 0; }
-            .game-row {
-                font-size: 0.9rem;
-                flex-wrap: wrap; 
-                gap: 12px;
-            }
-            .pick-col {
-                flex: 0 0 100%;
-                justify-content: space-between;
-                background: #f8fafc;
-                border: 1px solid var(--border-light);
-                padding: 10px;
-                border-radius: 8px;
-            }
-            .matchup {
-                width: 100%;
-            }
+            .game-row { font-size: 0.9rem; flex-wrap: wrap; gap: 12px; }
+            .pick-col { flex: 0 0 100%; justify-content: space-between; background: #f8fafc; border: 1px solid var(--border-light); padding: 10px; border-radius: 8px; }
+            .matchup { width: 100%; }
         }
-        @media (min-width: 601px) {
-            .th-short { display: none; }
-        }
+        @media (min-width: 601px) { .th-short { display: none; } }
     </style>
 </head>
 <body>
@@ -405,8 +169,7 @@
             <span class="celtic-title">MacMurphy<span class="shamrock-apos">☘</span>s</span> 
             Football Pool
         </h1>
-        <p>Week 1 Dashboard</p>
-        <span class="live-badge" id="live-indicator">Fetching Live Scores...</span>
+        <p>FINAL STANDINGS | MNF: Chiefs 31, Broncos 10 (41 Pts)</p>
     </div>
 
     <!-- Master List View -->
@@ -418,7 +181,7 @@
                         <th><span class="th-long">Rank</span><span class="th-short">#</span></th>
                         <th>Name</th>
                         <th><span class="th-long">Wins</span><span class="th-short">W</span></th>
-                        <th>MNF Pick</th>
+                        <th>TB Pts</th>
                         <th>TB Diff</th>
                         <th></th>
                     </tr>
@@ -430,10 +193,10 @@
         </div>
     </div>
 
-    <!-- Detail View (Hidden by default) -->
+    <!-- Detail View -->
     <div id="detail-view">
         <button class="btn-back" onclick="showList()">
-            &larr; Back to Master List
+            &larr; Back to Final Standings
         </button>
         <div class="details-panel" id="details-content">
             <!-- Populated by JavaScript -->
@@ -442,7 +205,6 @@
 </div>
 
 <script>
-    // NFL Team to ESPN CDN Abbreviation Map
     const logoMap = {
         "Titans": "ten", "J-E-T-S": "nyj", "Cowboys": "dal", "Giants": "nyg",
         "Steelers": "pit", "Falcons": "atl", "Bears": "chi", "Panthers": "car",
@@ -458,188 +220,51 @@
         return `https://a.espncdn.com/i/teamlogos/nfl/500/${abbr}.png`;
     }
 
-    // Base Pool Data Matrix
-    const data = {
-        "games": [{"fav": "Titans", "spread": 1.5, "dog": "J-E-T-S"}, {"fav": "Cowboys", "spread": 2.5, "dog": "Giants"}, {"fav": "Steelers", "spread": 3.5, "dog": "Falcons"}, {"fav": "Bears", "spread": 2.5, "dog": "Panthers"}, {"fav": "Ravens", "spread": 3.5, "dog": "Colts"}, {"fav": "Bengals", "spread": 3.5, "dog": "Buccaneers"}, {"fav": "Lions", "spread": 7.5, "dog": "Saints"}, {"fav": "Bills", "spread": 1.5, "dog": "Texans"}, {"fav": "Jaguars", "spread": 7.5, "dog": "Browns"}, {"fav": "Raiders", "spread": 3.5, "dog": "Dolphins"}, {"fav": "Chargers", "spread": 10.5, "dog": "Cardinals"}, {"fav": "Vikings", "spread": 1.5, "dog": "Packers"}, {"fav": "Eagles", "spread": 5.5, "dog": "Commanders"}], 
-        "mnf": {"fav": "Chiefs", "spread": 2.5, "dog": "Broncos"}, 
-        "actuals": [null, null, null, null, null, null, null, null, null, null, null, null, null], // To be populated dynamically
-        "participants": [
-            {"code": "CC", "mnf_pick": "D", "tb_pts": 34.0, "picks": ["F", "D", "F", "F", "D", "F", "D", "F", "F", "F", "D", "F", "D"]}, 
-            {"code": "HIC", "mnf_pick": "D", "tb_pts": 44.0, "picks": ["F", "D", "F", "F", "F", "F", "D", "F", "F", "F", "F", "F", "D"]}, 
-            {"code": "ES", "mnf_pick": "D", "tb_pts": 42.0, "picks": ["D", "F", "F", "F", "F", "F", "F", "F", "F", "F", "D", "D", "D"]}, 
-            {"code": "GPO", "mnf_pick": "D", "tb_pts": 39.0, "picks": ["D", "F", "F", "F", "F", "D", "D", "F", "F", "F", "D", "F", "F"]}, 
-            {"code": "JT8", "mnf_pick": "D", "tb_pts": 34.0, "picks": ["D", "F", "F", "F", "F", "F", "D", "D", "F", "F", "D", "F", "F"]}, 
-            {"code": "MJ", "mnf_pick": "F", "tb_pts": 42.0, "picks": ["F", "F", "D", "F", "F", "F", "D", "F", "F", "F", "D", "F", "D"]}, 
-            {"code": "ART", "mnf_pick": "F", "tb_pts": 43.0, "picks": ["F", "F", "F", "F", "F", "F", "F", "F", "F", "F", "D", "F", "F"]}, 
-            {"code": "BVD", "mnf_pick": "F", "tb_pts": 46.0, "picks": ["D", "D", "D", "F", "F", "F", "D", "D", "F", "F", "F", "F", "F"]}, 
-            {"code": "FISH", "mnf_pick": "D", "tb_pts": 46.0, "picks": ["D", "D", "F", "F", "F", "D", "F", "F", "F", "F", "F", "F", "F"]}, 
-            {"code": "FITZ", "mnf_pick": "F", "tb_pts": 45.0, "picks": ["F", "F", "F", "F", "F", "F", "F", "F", "F", "F", "D", "F", "F"]}, 
-            {"code": "GWB", "mnf_pick": "F", "tb_pts": 45.0, "picks": ["D", "D", "F", "D", "F", "F", "D", "F", "F", "F", "F", "D", "F"]}, 
-            {"code": "RIF", "mnf_pick": "F", "tb_pts": 41.0, "picks": ["D", "D", "F", "D", "F", "F", "D", "D", "D", "F", "D", "F", "F"]}, 
-            {"code": "RW", "mnf_pick": "F", "tb_pts": 47.0, "picks": ["D", "F", "F", "D", "F", "F", "D", "F", "F", "D", "D", "F", "F"]}, 
-            {"code": "TREZ", "mnf_pick": "F", "tb_pts": 41.0, "picks": ["D", "F", "F", "F", "D", "D", "D", "F", "F", "F", "D", "F", "F"]}, 
-            {"code": "VE", "mnf_pick": "D", "tb_pts": 44.0, "picks": ["D", "F", "F", "F", "F", "D", "D", "D", "F", "F", "D", "D", "D"]}, 
-            {"code": "BG", "mnf_pick": "F", "tb_pts": 42.0, "picks": ["F", "D", "F", "F", "F", "F", "F", "D", "F", "F", "F", "D", "D"]}, 
-            {"code": "CH", "mnf_pick": "F", "tb_pts": 43.5, "picks": ["D", "D", "D", "D", "F", "F", "F", "F", "F", "F", "F", "D", "D"]}, 
-            {"code": "CN", "mnf_pick": "F", "tb_pts": 48.0, "picks": ["F", "D", "D", "F", "F", "D", "D", "F", "F", "F", "F", "F", "F"]}, 
-            {"code": "DAR", "mnf_pick": "D", "tb_pts": 51.0, "picks": ["D", "F", "D", "F", "F", "F", "F", "D", "F", "F", "F", "F", "D"]}, 
-            {"code": "DD", "mnf_pick": "D", "tb_pts": 44.0, "picks": ["F", "F", "F", "F", "D", "D", "D", "F", "F", "D", "D", "F", "D"]}, 
-            {"code": "DJ", "mnf_pick": "F", "tb_pts": 46.0, "picks": ["D", "D", "F", "F", "D", "D", "F", "F", "D", "F", "F", "F", "D"]}, 
-            {"code": "EF", "mnf_pick": "D", "tb_pts": 38.0, "picks": ["D", "D", "F", "F", "F", "F", "F", "F", "D", "D", "F", "F", "F"]}, 
-            {"code": "JAL", "mnf_pick": "D", "tb_pts": 45.0, "picks": ["D", "D", "F", "D", "F", "F", "F", "D", "D", "F", "F", "F", "D"]}, 
-            {"code": "KT4", "mnf_pick": "D", "tb_pts": 40.0, "picks": ["F", "F", "F", "F", "D", "D", "D", "F", "F", "D", "D", "F", "D"]}, 
-            {"code": "RG", "mnf_pick": "D", "tb_pts": 40.0, "picks": ["D", "F", "F", "F", "F", "F", "F", "D", "F", "D", "D", "D", "D"]}, 
-            {"code": "RGB", "mnf_pick": "F", "tb_pts": 43.0, "picks": ["F", "F", "F", "F", "F", "D", "D", "F", "D", "F", "D", "F", "F"]}, 
-            {"code": "TR82", "mnf_pick": "F", "tb_pts": 43.0, "picks": ["F", "D", "F", "F", "F", "F", "F", "F", "F", "D", "D", "D", "F"]}, 
-            {"code": "VA", "mnf_pick": "D", "tb_pts": 44.0, "picks": ["D", "F", "F", "F", "D", "F", "F", "F", "F", "F", "D", "D", "F"]}, 
-            {"code": "ACM", "mnf_pick": "F", "tb_pts": 42.0, "picks": ["D", "F", "F", "F", "F", "D", "F", "D", "F", "D", "D", "F", "F"]}, 
-            {"code": "BEE", "mnf_pick": "F", "tb_pts": 42.0, "picks": ["D", "F", "F", "F", "F", "D", "F", "F", "F", "F", "F", "D", "F"]}, 
-            {"code": "BST", "mnf_pick": "D", "tb_pts": 44.0, "picks": ["D", "F", "F", "F", "F", "F", "F", "D", "F", "D", "F", "F", "F"]}, 
-            {"code": "EP", "mnf_pick": "D", "tb_pts": 46.0, "picks": ["F", "F", "D", "D", "F", "D", "F", "F", "F", "F", "D", "F", "D"]}, 
-            {"code": "JM", "mnf_pick": "F", "tb_pts": 42.0, "picks": ["F", "D", "D", "F", "F", "F", "D", "F", "F", "D", "F", "D", "F"]}, 
-            {"code": "JT", "mnf_pick": "D", "tb_pts": 39.0, "picks": ["F", "D", "D", "F", "F", "D", "F", "F", "F", "F", "D", "D", "F"]}, 
-            {"code": "NP2", "mnf_pick": "D", "tb_pts": 40.0, "picks": ["F", "F", "F", "F", "F", "D", "F", "D", "F", "F", "F", "F", "D"]}, 
-            {"code": "XXX", "mnf_pick": "D", "tb_pts": 33.0, "picks": ["F", "F", "F", "F", "D", "D", "D", "D", "F", "D", "D", "F", "D"]}, 
-            {"code": "AEC", "mnf_pick": "F", "tb_pts": 28.0, "picks": ["F", "F", "D", "F", "F", "F", "F", "F", "F", "F", "F", "D", "F"]}, 
-            {"code": "BOB", "mnf_pick": "D", "tb_pts": 36.0, "picks": ["F", "F", "F", "D", "D", "F", "D", "D", "D", "F", "D", "F", "F"]}, 
-            {"code": "CMS", "mnf_pick": "F", "tb_pts": 49.0, "picks": ["F", "D", "F", "F", "D", "F", "F", "D", "D", "F", "D", "D", "F"]}, 
-            {"code": "GCB3", "mnf_pick": "D", "tb_pts": 43.0, "picks": ["F", "F", "F", "D", "F", "F", "D", "F", "D", "F", "F", "D", "F"]}, 
-            {"code": "JC", "mnf_pick": "F", "tb_pts": 45.0, "picks": ["F", "D", "F", "D", "F", "F", "F", "D", "F", "F", "F", "D", "F"]}, 
-            {"code": "LKB", "mnf_pick": "D", "tb_pts": 44.0, "picks": ["D", "F", "F", "F", "D", "D", "D", "D", "D", "F", "D", "D", "F"]}, 
-            {"code": "OTC", "mnf_pick": "F", "tb_pts": 34.0, "picks": ["F", "D", "F", "F", "D", "F", "F", "F", "D", "F", "F", "D", "F"]}, 
-            {"code": "RH", "mnf_pick": "D", "tb_pts": 42.0, "picks": ["D", "F", "D", "F", "F", "D", "F", "D", "F", "F", "F", "F", "F"]}, 
-            {"code": "SD", "mnf_pick": "F", "tb_pts": 43.0, "picks": ["F", "D", "F", "F", "D", "F", "F", "D", "F", "F", "F", "D", "F"]}, 
-            {"code": "TK", "mnf_pick": "D", "tb_pts": 35.0, "picks": ["D", "F", "F", "F", "F", "F", "F", "D", "F", "D", "F", "D", "F"]}, 
-            {"code": "BST1", "mnf_pick": "F", "tb_pts": 45.0, "picks": ["F", "F", "F", "F", "D", "D", "F", "F", "F", "F", "F", "D", "F"]}, 
-            {"code": "FI", "mnf_pick": "F", "tb_pts": 42.0, "picks": ["F", "F", "D", "D", "D", "F", "F", "F", "F", "D", "F", "F", "D"]}, 
-            {"code": "MFA", "mnf_pick": "D", "tb_pts": 37.0, "picks": ["D", "D", "D", "D", "D", "D", "F", "F", "F", "D", "F", "D", "D"]}, 
-            {"code": "NP", "mnf_pick": "D", "tb_pts": 34.0, "picks": ["D", "F", "F", "F", "D", "D", "F", "D", "F", "F", "F", "D", "F"]}, 
-            {"code": "PC", "mnf_pick": "F", "tb_pts": 46.0, "picks": ["F", "D", "D", "D", "D", "F", "F", "F", "D", "D", "D", "D", "D"]}, 
-            {"code": "RUN", "mnf_pick": "D", "tb_pts": 33.0, "picks": ["F", "D", "D", "F", "F", "F", "F", "D", "D", "D", "F", "F", "F"]}, 
-            {"code": "TR8", "mnf_pick": "D", "tb_pts": 46.0, "picks": ["D", "F", "F", "F", "D", "D", "F", "D", "D", "F", "F", "D", "D"]}, 
-            {"code": "KH", "mnf_pick": "D", "tb_pts": 42.0, "picks": ["F", "D", "F", "D", "D", "D", "D", "F", "D", "D", "F", "D", "F"]}, 
-            {"code": "MPE", "mnf_pick": "D", "tb_pts": 42.0, "picks": ["F", "D", "F", "D", "F", "D", "F", "D", "F", "D", "F", "D", "F"]}, 
-            {"code": "ZIG", "mnf_pick": "D", "tb_pts": 50.5, "picks": ["F", "F", "F", "D", "F", "D", "F", "D", "F", "D", "F", "D", "F"]}
-        ]
-    };
-
-    let mnfTotalScore = 0;
-    let mnfStarted = false;
-
-    // Fetch Live Scores from ESPN NFL API
-    async function initDashboard() {
-        try {
-            const res = await fetch('https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard?seasontype=2&week=1');
-            const espnData = await res.json();
-            
-            const liveScores = {};
-            espnData.events.forEach(evt => {
-                evt.competitions[0].competitors.forEach(comp => {
-                    liveScores[comp.team.abbreviation.toLowerCase()] = parseInt(comp.score, 10);
-                });
-            });
-
-            // Update main games with live score differences
-            data.games.forEach((g, i) => {
-                const favAbbr = logoMap[g.fav].toLowerCase();
-                const dogAbbr = logoMap[g.dog].toLowerCase();
-                
-                if (liveScores[favAbbr] !== undefined && liveScores[dogAbbr] !== undefined) {
-                    const diff = liveScores[favAbbr] - liveScores[dogAbbr];
-                    // Compare difference to the spread
-                    data.actuals[i] = diff > g.spread ? 'F' : 'D';
-                } else {
-                    data.actuals[i] = null; // Game pending
-                }
-            });
-
-            // Update MNF Tiebreaker Game
-            const mnfFavAbbr = logoMap[data.mnf.fav].toLowerCase();
-            const mnfDogAbbr = logoMap[data.mnf.dog].toLowerCase();
-            let mnfActual = null;
-
-            if (liveScores[mnfFavAbbr] !== undefined && liveScores[mnfDogAbbr] !== undefined) {
-                mnfStarted = true;
-                mnfTotalScore = liveScores[mnfFavAbbr] + liveScores[mnfDogAbbr];
-                const diff = liveScores[mnfFavAbbr] - liveScores[mnfDogAbbr];
-                mnfActual = diff > data.mnf.spread ? 'F' : 'D';
-            }
-
-            // Dynamically score all participants based on live board
-            data.participants.forEach(p => {
-                let wins = 0;
-                p.picks.forEach((pick, i) => {
-                    if (pick === data.actuals[i]) wins++;
-                });
-                
-                // Add MNF outcome to total wins
-                if (mnfActual !== null && p.mnf_pick === mnfActual) {
-                    wins++;
-                }
-                
-                p.wins = wins;
-                p.tb_diff = mnfStarted ? Math.abs(p.tb_pts - mnfTotalScore) : 0;
-            });
-
-            // Re-rank Leaderboard: Sort by Wins (Desc), then Tiebreaker Difference (Asc)
-            data.participants.sort((a, b) => {
-                if (b.wins !== a.wins) return b.wins - a.wins;
-                return a.tb_diff - b.tb_diff;
-            });
-            
-            document.getElementById('live-indicator').innerHTML = "Live Scores Connected";
-            document.getElementById('live-indicator').style.background = "#16a34a"; // Green when loaded
-            
-        } catch(e) {
-            console.error("ESPN API Fetch failed", e);
-            document.getElementById('live-indicator').innerHTML = "Live Feed Offline";
-            document.getElementById('live-indicator').style.background = "#64748b";
-        }
-
-        renderTable();
-        
-        // Auto-select Fitz
-        const defaultUser = data.participants.find(p => p.code === 'FITZ');
-        if (defaultUser) {
-            showDetails('FITZ');
-        } else if (data.participants.length > 0) {
-            showDetails(data.participants[0].code);
-        }
-    }
+    // FINALIZED SCORING DATA (Includes Game 14 MNF Final)
+    const data = {"games": [{"fav": "Titans", "spread": 1.5, "dog": "J-E-T-S"}, {"fav": "Cowboys", "spread": 2.5, "dog": "Giants"}, {"fav": "Steelers", "spread": 3.5, "dog": "Falcons"}, {"fav": "Bears", "spread": 2.5, "dog": "Panthers"}, {"fav": "Ravens", "spread": 3.5, "dog": "Colts"}, {"fav": "Bengals", "spread": 3.5, "dog": "Buccaneers"}, {"fav": "Lions", "spread": 7.5, "dog": "Saints"}, {"fav": "Bills", "spread": 1.5, "dog": "Texans"}, {"fav": "Jaguars", "spread": 7.5, "dog": "Browns"}, {"fav": "Raiders", "spread": 3.5, "dog": "Dolphins"}, {"fav": "Chargers", "spread": 10.5, "dog": "Cardinals"}, {"fav": "Vikings", "spread": 1.5, "dog": "Packers"}, {"fav": "Eagles", "spread": 5.5, "dog": "Commanders"}, {"fav": "Chiefs", "spread": 2.5, "dog": "Broncos"}], "mnf_pts_actual": 41, "actuals": ["D", "D", "F", "F", "F", "F", "D", "F", "F", "F", "D", "F", "D", "F"], "participants": [{"code": "MJ", "wins": 11, "mnf_pick": "F", "tb_pts": 42.0, "picks": ["F", "F", "D", "F", "F", "F", "D", "F", "F", "F", "D", "F", "D", "F"]}, {"code": "HIC", "wins": 11, "mnf_pick": "D", "tb_pts": 44.0, "picks": ["F", "D", "F", "F", "F", "F", "D", "F", "F", "F", "F", "F", "D", "D"]}, {"code": "CC", "wins": 11, "mnf_pick": "D", "tb_pts": 34.0, "picks": ["F", "D", "F", "F", "D", "F", "D", "F", "F", "F", "D", "F", "D", "D"]}, {"code": "RIF", "wins": 10, "mnf_pick": "F", "tb_pts": 41.0, "picks": ["D", "D", "F", "D", "F", "F", "D", "D", "D", "F", "D", "F", "F", "F"]}, {"code": "TREZ", "wins": 10, "mnf_pick": "F", "tb_pts": 41.0, "picks": ["D", "F", "F", "F", "D", "D", "D", "F", "F", "F", "D", "F", "F", "F"]}, {"code": "ES", "wins": 10, "mnf_pick": "D", "tb_pts": 42.0, "picks": ["D", "F", "F", "F", "F", "F", "F", "F", "F", "F", "D", "D", "D", "D"]}, {"code": "ART", "wins": 10, "mnf_pick": "F", "tb_pts": 43.0, "picks": ["F", "F", "F", "F", "F", "F", "F", "F", "F", "F", "D", "F", "F", "F"]}, {"code": "GPO", "wins": 10, "mnf_pick": "D", "tb_pts": 39.0, "picks": ["D", "F", "F", "F", "F", "D", "D", "F", "F", "F", "D", "F", "F", "D"]}, {"code": "FITZ", "wins": 10, "mnf_pick": "F", "tb_pts": 45.0, "picks": ["F", "F", "F", "F", "F", "F", "F", "F", "F", "F", "D", "F", "F", "F"]}, {"code": "GWB", "wins": 10, "mnf_pick": "F", "tb_pts": 45.0, "picks": ["D", "D", "F", "D", "F", "F", "D", "F", "F", "F", "F", "D", "F", "F"]}, {"code": "BVD", "wins": 10, "mnf_pick": "F", "tb_pts": 46.0, "picks": ["D", "D", "D", "F", "F", "F", "D", "D", "F", "F", "F", "F", "F", "F"]}, {"code": "RW", "wins": 10, "mnf_pick": "F", "tb_pts": 47.0, "picks": ["D", "F", "F", "D", "F", "F", "D", "F", "F", "D", "D", "F", "F", "F"]}, {"code": "JT8", "wins": 10, "mnf_pick": "D", "tb_pts": 34.0, "picks": ["D", "F", "F", "F", "F", "F", "D", "D", "F", "F", "D", "F", "F", "D"]}, {"code": "BG", "wins": 9, "mnf_pick": "F", "tb_pts": 42.0, "picks": ["F", "D", "F", "F", "F", "F", "F", "D", "F", "F", "F", "D", "D", "F"]}, {"code": "RGB", "wins": 9, "mnf_pick": "F", "tb_pts": 43.0, "picks": ["F", "F", "F", "F", "F", "D", "D", "F", "D", "F", "D", "F", "F", "F"]}, {"code": "TR82", "wins": 9, "mnf_pick": "F", "tb_pts": 43.0, "picks": ["F", "D", "F", "F", "F", "F", "F", "F", "F", "D", "D", "D", "F", "F"]}, {"code": "CH", "wins": 9, "mnf_pick": "F", "tb_pts": 43.5, "picks": ["D", "D", "D", "D", "F", "F", "F", "F", "F", "F", "F", "D", "D", "F"]}, {"code": "VE", "wins": 9, "mnf_pick": "D", "tb_pts": 44.0, "picks": ["D", "F", "F", "F", "F", "D", "D", "D", "F", "F", "D", "D", "D", "D"]}, {"code": "DJ", "wins": 9, "mnf_pick": "F", "tb_pts": 46.0, "picks": ["D", "D", "F", "F", "D", "D", "F", "F", "D", "F", "F", "F", "D", "F"]}, {"code": "FISH", "wins": 9, "mnf_pick": "D", "tb_pts": 46.0, "picks": ["D", "D", "F", "F", "F", "D", "F", "F", "F", "F", "F", "F", "F", "D"]}, {"code": "CN", "wins": 9, "mnf_pick": "F", "tb_pts": 48.0, "picks": ["F", "D", "D", "F", "F", "D", "D", "F", "F", "F", "F", "F", "F", "F"]}, {"code": "ACM", "wins": 8, "mnf_pick": "F", "tb_pts": 42.0, "picks": ["D", "F", "F", "F", "F", "D", "F", "D", "F", "D", "D", "F", "F", "F"]}, {"code": "BEE", "wins": 8, "mnf_pick": "F", "tb_pts": 42.0, "picks": ["D", "F", "F", "F", "F", "D", "F", "F", "F", "F", "F", "D", "F", "F"]}, {"code": "JM", "wins": 8, "mnf_pick": "F", "tb_pts": 42.0, "picks": ["F", "D", "D", "F", "F", "F", "D", "F", "F", "D", "F", "D", "F", "F"]}, {"code": "KT4", "wins": 8, "mnf_pick": "D", "tb_pts": 40.0, "picks": ["F", "F", "F", "F", "D", "D", "D", "F", "F", "D", "D", "F", "D", "D"]}, {"code": "RG", "wins": 8, "mnf_pick": "D", "tb_pts": 40.0, "picks": ["D", "F", "F", "F", "F", "F", "F", "D", "F", "D", "D", "D", "D", "D"]}, {"code": "DD", "wins": 8, "mnf_pick": "D", "tb_pts": 44.0, "picks": ["F", "F", "F", "F", "D", "D", "D", "F", "F", "D", "D", "F", "D", "D"]}, {"code": "EF", "wins": 8, "mnf_pick": "D", "tb_pts": 38.0, "picks": ["D", "D", "F", "F", "F", "F", "F", "F", "D", "D", "F", "F", "F", "D"]}, {"code": "VA", "wins": 8, "mnf_pick": "D", "tb_pts": 44.0, "picks": ["D", "F", "F", "F", "D", "F", "F", "F", "F", "F", "D", "D", "F", "D"]}, {"code": "JAL", "wins": 8, "mnf_pick": "D", "tb_pts": 45.0, "picks": ["D", "D", "F", "D", "F", "F", "F", "D", "D", "F", "F", "F", "D", "D"]}, {"code": "DAR", "wins": 8, "mnf_pick": "D", "tb_pts": 51.0, "picks": ["D", "F", "D", "F", "F", "F", "F", "D", "F", "F", "F", "F", "D", "D"]}, {"code": "NP2", "wins": 7, "mnf_pick": "D", "tb_pts": 40.0, "picks": ["F", "F", "F", "F", "F", "D", "F", "D", "F", "F", "F", "F", "D", "D"]}, {"code": "JT", "wins": 7, "mnf_pick": "D", "tb_pts": 39.0, "picks": ["F", "D", "D", "F", "F", "D", "F", "F", "F", "F", "D", "D", "F", "D"]}, {"code": "SD", "wins": 7, "mnf_pick": "F", "tb_pts": 43.0, "picks": ["F", "D", "F", "F", "D", "F", "F", "D", "F", "F", "F", "D", "F", "F"]}, {"code": "BST", "wins": 7, "mnf_pick": "D", "tb_pts": 44.0, "picks": ["D", "F", "F", "F", "F", "F", "F", "D", "F", "D", "F", "F", "F", "D"]}, {"code": "JC", "wins": 7, "mnf_pick": "F", "tb_pts": 45.0, "picks": ["F", "D", "F", "D", "F", "F", "F", "D", "F", "F", "F", "D", "F", "F"]}, {"code": "EP", "wins": 7, "mnf_pick": "D", "tb_pts": 46.0, "picks": ["F", "F", "D", "D", "F", "D", "F", "F", "F", "F", "D", "F", "D", "D"]}, {"code": "OTC", "wins": 7, "mnf_pick": "F", "tb_pts": 34.0, "picks": ["F", "D", "F", "F", "D", "F", "F", "F", "D", "F", "F", "D", "F", "F"]}, {"code": "CMS", "wins": 7, "mnf_pick": "F", "tb_pts": 49.0, "picks": ["F", "D", "F", "F", "D", "F", "F", "D", "D", "F", "D", "D", "F", "F"]}, {"code": "XXX", "wins": 7, "mnf_pick": "D", "tb_pts": 33.0, "picks": ["F", "F", "F", "F", "D", "D", "D", "D", "F", "D", "D", "F", "D", "D"]}, {"code": "AEC", "wins": 7, "mnf_pick": "F", "tb_pts": 28.0, "picks": ["F", "F", "D", "F", "F", "F", "F", "F", "F", "F", "F", "D", "F", "F"]}, {"code": "FI", "wins": 6, "mnf_pick": "F", "tb_pts": 42.0, "picks": ["F", "F", "D", "D", "D", "F", "F", "F", "F", "D", "F", "F", "D", "F"]}, {"code": "RH", "wins": 6, "mnf_pick": "D", "tb_pts": 42.0, "picks": ["D", "F", "D", "F", "F", "D", "F", "D", "F", "F", "F", "F", "F", "D"]}, {"code": "GCB3", "wins": 6, "mnf_pick": "D", "tb_pts": 43.0, "picks": ["F", "F", "F", "D", "F", "F", "D", "F", "D", "F", "F", "D", "F", "D"]}, {"code": "LKB", "wins": 6, "mnf_pick": "D", "tb_pts": 44.0, "picks": ["D", "F", "F", "F", "D", "D", "D", "D", "D", "F", "D", "D", "F", "D"]}, {"code": "BST1", "wins": 6, "mnf_pick": "F", "tb_pts": 45.0, "picks": ["F", "F", "F", "F", "D", "D", "F", "F", "F", "F", "F", "D", "F", "F"]}, {"code": "BOB", "wins": 6, "mnf_pick": "D", "tb_pts": 36.0, "picks": ["F", "F", "F", "D", "D", "F", "D", "D", "D", "F", "D", "F", "F", "D"]}, {"code": "PC", "wins": 6, "mnf_pick": "F", "tb_pts": 46.0, "picks": ["F", "D", "D", "D", "D", "F", "F", "F", "D", "D", "D", "D", "D", "F"]}, {"code": "TK", "wins": 6, "mnf_pick": "D", "tb_pts": 35.0, "picks": ["D", "F", "F", "F", "F", "F", "F", "D", "F", "D", "F", "D", "F", "D"]}, {"code": "MFA", "wins": 5, "mnf_pick": "D", "tb_pts": 37.0, "picks": ["D", "D", "D", "D", "D", "D", "F", "F", "F", "D", "F", "D", "D", "D"]}, {"code": "TR8", "wins": 5, "mnf_pick": "D", "tb_pts": 46.0, "picks": ["D", "F", "F", "F", "D", "D", "F", "D", "D", "F", "F", "D", "D", "D"]}, {"code": "NP", "wins": 5, "mnf_pick": "D", "tb_pts": 34.0, "picks": ["D", "F", "F", "F", "D", "D", "F", "D", "F", "F", "F", "D", "F", "D"]}, {"code": "RUN", "wins": 5, "mnf_pick": "D", "tb_pts": 33.0, "picks": ["F", "D", "D", "F", "F", "F", "F", "D", "D", "D", "F", "F", "F", "D"]}, {"code": "KH", "wins": 4, "mnf_pick": "D", "tb_pts": 42.0, "picks": ["F", "D", "F", "D", "D", "D", "D", "F", "D", "D", "F", "D", "F", "D"]}, {"code": "MPE", "wins": 4, "mnf_pick": "D", "tb_pts": 42.0, "picks": ["F", "D", "F", "D", "F", "D", "F", "D", "F", "D", "F", "D", "F", "D"]}, {"code": "ZIG", "wins": 3, "mnf_pick": "D", "tb_pts": 50.5, "picks": ["F", "F", "F", "D", "F", "D", "F", "D", "F", "D", "F", "D", "F", "D"]}]};
 
     function renderTable() {
         const tbody = document.getElementById('leaderboard-body');
         let html = '';
-        let currentRank = 1;
-        let previousWins = -1;
-        let previousTbDiff = -1;
+        
+        let rankCounter = 1;
+        let displayRank = 1;
+        let prevWins = -1;
+        let prevDiff = -1;
 
-        data.participants.forEach((p, index) => {
-            // Rank logically based on ties and tiebreaker diffs
-            if (p.wins !== previousWins || p.tb_diff !== previousTbDiff) {
-                currentRank = index + 1;
-                previousWins = p.wins;
-                previousTbDiff = p.tb_diff;
+        data.participants.forEach((p) => {
+            let diff = Math.abs(p.tb_pts - data.mnf_pts_actual);
+            
+            if (p.wins !== prevWins || diff !== prevDiff) {
+                displayRank = rankCounter;
+                prevWins = p.wins;
+                prevDiff = diff;
+            }
+            rankCounter++;
+            
+            let rankColor = "var(--text-muted)";
+            let rankBadge = displayRank;
+            let highlightStyle = "";
+            
+            if (displayRank === 1) {
+                rankColor = "var(--gold)";
+                rankBadge = "🥇 1";
+                highlightStyle = "background: rgba(217, 119, 6, 0.08); border-left: 4px solid var(--gold);";
+            } else if (displayRank === 2) {
+                rankColor = "var(--silver)";
+                rankBadge = "🥈 2";
+                highlightStyle = "background: rgba(100, 116, 139, 0.05); border-left: 4px solid var(--silver);";
+            } else if (displayRank === 3) {
+                rankBadge = "🥉 3";
             }
             
-            let pickName = p.mnf_pick === 'F' ? data.mnf.fav : data.mnf.dog;
-            let mobilePickName = pickName.substring(0,3).toUpperCase(); 
-            
-            let tbDisplay = mnfStarted ? `${p.tb_pts} <span style="color:var(--text-muted);font-size:0.8em;">(±${p.tb_diff})</span>` : p.tb_pts;
-
             html += `
-                <tr onclick="showDetails('${p.code}')">
-                    <td style="font-weight:700; color:var(--text-muted);">${currentRank}</td>
+                <tr onclick="showDetails('${p.code}')" style="${highlightStyle}">
+                    <td style="font-weight:900; color:${rankColor}; padding-left:12px;">${rankBadge}</td>
                     <td style="font-weight:800;">${p.code}</td>
                     <td style="color:#0284c7; font-weight:800;">${p.wins}</td>
-                    <td>
-                        <span class="badge">
-                            <img src="${getLogo(pickName)}" class="team-logo-small">
-                            <span class="th-long">${pickName}</span>
-                            <span class="th-short">${mobilePickName}</span>
-                        </span>
-                    </td>
-                    <td style="font-weight:600;">${tbDisplay}</td>
+                    <td style="font-weight:600;">${p.tb_pts}</td>
+                    <td style="font-weight:600; color:var(--text-muted)">±${diff}</td>
                     <td><a href="#" onclick="event.preventDefault();" class="btn-view">View</a></td>
                 </tr>
             `;
@@ -656,8 +281,7 @@
         const content = document.getElementById('details-content');
         if (!p) return;
         
-        let mnfPickName = p.mnf_pick === 'F' ? data.mnf.fav : data.mnf.dog;
-        let diffText = mnfStarted ? `±${p.tb_diff} off actual` : `Awaiting MNF`;
+        let diff = Math.abs(p.tb_pts - data.mnf_pts_actual);
         
         let html = `
             <div class="details-header">
@@ -666,18 +290,15 @@
             <div class="details-stats">
                 <div class="stat-box">
                     <span class="stat-label">Total Wins</span>
-                    <span class="stat-val highlight">${p.wins}</span>
+                    <span class="stat-val highlight">${p.wins} / 14</span>
                 </div>
                 <div class="stat-box">
-                    <span class="stat-label">MNF Pick</span>
-                    <span class="badge" style="background:transparent; border:none; padding:0;">
-                        <img src="${getLogo(mnfPickName)}" class="team-logo-small">
-                        <span style="font-weight:800; color:var(--text-dark);">${mnfPickName}</span>
-                    </span>
+                    <span class="stat-label">Tiebreaker Pick</span>
+                    <span class="stat-val">${p.tb_pts} Pts</span>
                 </div>
                 <div class="stat-box">
-                    <span class="stat-label">Tiebreaker (${p.tb_pts})</span>
-                    <span class="stat-val" style="font-size:1rem; color:var(--text-muted);">${diffText}</span>
+                    <span class="stat-label">TB Diff (Actual: ${data.mnf_pts_actual})</span>
+                    <span class="stat-val">Off by ${diff}</span>
                 </div>
             </div>
             <div class="games-list">
@@ -686,13 +307,12 @@
         data.games.forEach((g, i) => {
             const pick = p.picks[i];
             const actual = data.actuals[i];
+            const isCorrect = pick === actual;
             
-            let isCorrect = (actual === null) ? null : (pick === actual);
             let pickedTeam = pick === 'F' ? g.fav : g.dog;
-            
-            let iconClass = isCorrect === null ? 'pending' : (isCorrect ? 'correct' : 'wrong');
-            let iconMark = isCorrect === null ? '-' : (isCorrect ? '✓' : '✗');
-            let textClass = isCorrect === null ? 'text-pending' : (isCorrect ? 'text-correct' : 'text-wrong');
+            let iconClass = isCorrect ? 'correct' : 'wrong';
+            let iconMark = isCorrect ? '✓' : '✗';
+            let textClass = isCorrect ? 'text-correct' : 'text-wrong';
             
             html += `
                 <div class="game-row">
@@ -728,8 +348,7 @@
         window.scrollTo(0, 0);
     }
 
-    // Load data and fetch API
-    window.onload = initDashboard;
+    window.onload = renderTable;
 </script>
 
 </body>
