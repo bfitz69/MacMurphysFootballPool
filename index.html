@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>MacMurphy's Football Pool - LIVE</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Uncial+Antiqua&display=swap');
+
+        :root {
+            --bg: #114b21;
+            --text-main: #ffffff;
+            --panel-bg: #ffffff;
+            --text-dark: #0f172a;
+            --text-muted: #64748b;
+            --border-light: #e2e8f0;
+            --hover-light: #f8fafc;
+            --correct-text: #16a34a;
+            --wrong-text: #dc2626;
+            --gold: #d97706;
+            --silver: #64748b;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg);
+            color: var(--text-main);
+            margin: 0;
+            padding: 20px;
+            -webkit-font-smoothing: antialiased;
+        }
+        .container { max-width: 900px; margin: 0 auto; }
+        .header {
+            text-align: center;
+            margin-bottom: 12px;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.2);
+            padding-bottom: 16px;
+        }
+        .celtic-title {
+            font-family: 'Uncial Antiqua', cursive;
+            font-size: clamp(1.8rem, 8.5vw, 2.4rem);
+            font-weight: bold;
+            display: block;
+            color: #ffffff;
+            text-shadow: 2px 3px 5px rgba(0, 0, 0, 0.4);
+            margin-bottom: -4px;
+            text-transform: none; 
+            white-space: nowrap; 
+        }
+        .shamrock-apos {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            font-size: 0.55em;
+            vertical-align: super;
+            color: #ffffff; 
+            margin: 0 -1px;
+            display: inline-block;
+            transform: rotate(10deg);
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+        }
+        .header h1 {
+            margin: 0;
+            color: #e2e8f0;
+            font-size: 1.2rem;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+        
+        #sync-status {
+            text-align: center;
+            color: #bbf7d0;
+            font-size: 0.85rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+            padding: 6px;
+            border-radius: 6px;
+            background: rgba(0,0,0,0.15);
+        }
+
+        .table-container {
+            background: var(--panel-bg);
+            color: var(--text-dark);
+            border-radius: 12px;
+            border: 1px solid var(--border-light);
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+        }
+        table { width: 100%; border-collapse: collapse; text-align: left; white-space: nowrap; }
+        th {
+            background: #f1f5f9; color: #475569; padding: 14px 12px; font-size: 0.8rem;
+            text-transform: uppercase; font-weight: 700; border-bottom: 2px solid #cbd5e1;
+            position: sticky; top: 0; z-index: 10;
+        }
+        td { padding: 12px; border-bottom: 1px solid var(--border-light); font-size: 0.95rem; vertical-align: middle; }
+        tr { cursor: pointer; transition: background-color 0.15s ease; }
+        tr:hover { background-color: var(--hover-light); }
+        .badge {
+            display: inline-flex; align-items: center; justify-content: center; padding: 4px 10px;
+            border-radius: 6px; font-size: 0.85rem; font-weight: 700; text-align: center; gap: 8px;
+            border: 1px solid var(--border-light); background: #f8fafc; color: var(--text-dark);
+        }
+        .text-correct { color: var(--correct-text) !important; font-weight: 800; }
+        .text-wrong {
+            color: var(--wrong-text) !important; font-weight: 800; text-decoration: line-through;
+            text-decoration-thickness: 2px; text-decoration-color: rgba(220, 38, 38, 0.4);
+        }
+        .text-pending { color: var(--text-muted) !important; font-weight: 600; }
+        
+        .btn-view {
+            color: #0284c7; text-decoration: none; font-weight: 700; background: #e0f2fe;
+            padding: 6px 14px; border-radius: 6px; font-size: 0.85rem; pointer-events: none;
+        }
+        .btn-back {
+            display: inline-flex; align-items: center; justify-content: center; color: #114b21;
+            text-decoration: none; font-weight: 800; background: #ffffff; padding: 10px 16px;
+            border-radius: 8px; margin-bottom: 16px; transition: background 0.2s; cursor: pointer;
+            border: 1px solid var(--border-light); box-shadow: 0 2px 4px rgba(0,0,0,0.15);
+        }
+        .btn-back:hover { background: #f0fdf4; }
+        .team-logo { width: 30px; height: 30px; object-fit: contain; vertical-align: middle; }
+        .team-logo-small { width: 18px; height: 18px; object-fit: contain; }
+
+        .details-panel {
+            background: var(--panel-bg); color: var(--text-dark); border: 1px solid var(--border-light);
+            border-radius: 12px; padding: 24px; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+        }
+        .details-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-bottom: 12px; border-bottom: 1px solid var(--border-light); }
+        .details-header h2 { margin: 0; color: var(--text-dark); font-size: 1.8rem; }
+        .details-stats { display: flex; gap: 12px; margin-bottom: 24px; }
+        .stat-box { flex: 1; background: #f8fafc; padding: 12px; border-radius: 8px; border: 1px solid var(--border-light); text-align: center; }
+        .stat-label { display: block; color: var(--text-muted); font-size: 0.7rem; text-transform: uppercase; margin-bottom: 6px; font-weight: 700; }
+        .stat-val { font-weight: 900; color: var(--text-dark); font-size: 1.2rem; }
+        .stat-val.highlight { color: #0284c7; }
+        
+        .game-row { display: flex; align-items: center; padding: 14px 0; border-bottom: 1px solid var(--border-light); font-size: 0.95rem; }
+        .game-row:last-child { border-bottom: none; }
+        .matchup { flex: 1; display: flex; align-items: center; justify-content: space-between; font-weight: 600; margin-right: 16px;}
+        .team-block { display: flex; flex-direction: column; align-items: center; gap: 4px; width: 60px; text-align: center; font-size: 0.8rem;}
+        .score-block { text-align: center; flex: 1; }
+        .score-text { font-size: 1.2rem; font-weight: 900; color: #0f172a; display: block;}
+        .clock-text { font-size: 0.75rem; font-weight: 700; color: #dc2626; display: block; margin-top:2px;}
+        .spread-text { font-size: 0.75rem; color: #64748b; display: block;}
+
+        .pick-col { flex: 0 0 140px; display: flex; align-items: center; justify-content: flex-end; gap: 10px; }
+        .icon { display: inline-flex; align-items: center; justify-content: center; width: 24px; height: 24px; border-radius: 50%; font-size: 13px; font-weight: bold; }
+        .icon.correct { background: #dcfce7; color: #16a34a; border: 1px solid #bbf7d0; }
+        .icon.wrong { background: #fee2e2; color: #dc2626; border: 1px solid #fecaca; }
+        .icon.pending { background: #f1f5f9; color: #94a3b8; border: 1px solid #e2e8f0; }
+
+        #list-view { display: block; }
+        #detail-view { display: none; }
+
+        @media (max-width: 600px) {
+            body { padding: 12px; }
+            .header h1 { font-size: 1.2rem; }
+            .table-container { border-radius: 8px; }
+            th { padding: 12px 8px; font-size: 0.75rem; }
+            td { padding: 12px 8px; font-size: 0.9rem; }
+            .th-long { display: none; }
+            .th-short { display: inline; }
+            .btn-view { padding: 6px 8px; font-size: 0.75rem; }
+            .btn-back { width: 100%; box-sizing: border-box; font-size: 1rem; padding: 12px; }
+            .details-panel { padding: 16px; }
+            .details-header h2 { font-size: 1.5rem; }
+            .details-stats { flex-direction: column; gap: 8px; }
+            .stat-box { display: flex; justify-content: space-between; align-items: center; text-align: left; padding: 10px 16px; }
+            .stat-label { margin-bottom: 0; }
+            .game-row { font-size: 0.9rem; flex-wrap: wrap; gap: 12px; }
+            .pick-col { flex: 0 0 100%; justify-content: space-between; background: #f8fafc; border: 1px solid var(--border-light); padding: 10px; border-radius: 8px; }
+            .matchup { width: 100%; margin-right: 0;}
+        }
+        @media (min-width: 601px) { .th-short { display: none; } }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header">
+        <h1>
+            <span class="celtic-title">MacMurphy<span class="shamrock-apos">☘</span>s</span> 
+            Football Pool
+        </h1>
+    </div>
+    
+    <div id="sync-status">🔄 Initializing Live Connection to ESPN...</div>
+
+    <!-- Master List View -->
+    <div id="list-view">
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th><span class="th-long">Rank</span><span class="th-short">#</span></th>
+                        <th>Name</th>
+                        <th><span class="th-long">Live Wins</span><span class="th-short">W</span></th>
+                        <th>TB Pts</th>
+                        <th>TB Diff</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody id="leaderboard-body">
+                    <!-- Populated by JavaScript -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Detail View -->
+    <div id="detail-view">
+        <button class="btn-back" onclick="showList()">
+            &larr; Back to Live Standings
+        </button>
+        <div class="details-panel" id="details-content">
+            <!-- Populated by JavaScript -->
+        </div>
+    </div>
+</div>
+
+<script>
+    // NFL Team to ESPN Abbreviation Map for API lookups (Updated "WSH")
+    const logoMap = {
+        "Titans": "TEN", "J-E-T-S": "NYJ", "Cowboys": "DAL", "Giants": "NYG",
+        "Steelers": "PIT", "Falcons": "ATL", "Bears": "CHI", "Panthers": "CAR",
+        "Ravens": "BAL", "Colts": "IND", "Bengals": "CIN", "Buccaneers": "TB",
+        "Lions": "DET", "Saints": "NO", "Bills": "BUF", "Texans": "HOU",
+        "Jaguars": "JAX", "Browns": "CLE", "Raiders": "LV", "Dolphins": "MIA",
+        "Chargers": "LAC", "Cardinals": "ARI", "Vikings": "MIN", "Packers": "GB",
+        "Eagles": "PHI", "Commanders": "WSH", "Chiefs": "KC", "Broncos": "DEN"
+    };
+
+    function getLogo(teamName) {
+        const abbr = logoMap[teamName] || "NFL";
+        return `https://a.espncdn.com/i/teamlogos/nfl/500/${abbr.toLowerCase()}.png`;
+    }
+
+    // STATIC DATA: Contains ONLY the setup. No wins or actual outcomes are hardcoded here.
+    const data = {
+        "games": [
+            {"fav": "Titans", "spread": 1.5, "dog": "J-E-T-S"}, {"fav": "Cowboys", "spread": 2.5, "dog": "Giants"}, 
+            {"fav": "Steelers", "spread": 3.5, "dog": "Falcons"}, {"fav": "Bears", "spread": 2.5, "dog": "Panthers"}, 
+            {"fav": "Ravens", "spread": 3.5, "dog": "Colts"}, {"fav": "Bengals", "spread": 3.5, "dog": "Buccaneers"}, 
+            {"fav": "Lions", "spread": 7.5, "dog": "Saints"}, {"fav": "Bills", "spread": 1.5, "dog": "Texans"}, 
+            {"fav": "Jaguars", "spread": 7.5, "dog": "Browns"}, {"fav": "Raiders", "spread": 3.5, "dog": "Dolphins"}, 
+            {"fav": "Chargers", "spread": 10.5, "dog": "Cardinals"}, {"fav": "Vikings", "spread": 1.5, "dog": "Packers"}, 
+            {"fav": "Eagles", "spread": 5.5, "dog": "Commanders"}, {"fav": "Chiefs", "spread": 2.5, "dog": "Broncos"} // Game 14 is MNF
+        ],
+        "mnf": {"fav": "Chiefs", "spread": 2.5, "dog": "Broncos"}, 
+        "participants": [
+            {"code": "MJ", "tb_pts": 42.0, "picks": ["F", "F", "D", "F", "F", "F", "D", "F", "F", "F", "D", "F", "D", "F"]}, 
+            {"code": "HIC", "tb_pts": 44.0, "picks": ["F", "D", "F", "F", "F", "F", "D", "F", "F", "F", "F", "F", "D", "D"]}, 
+            {"code": "CC", "tb_pts": 34.0, "picks": ["F", "D", "F", "F", "D", "F", "D", "F", "F", "F", "D", "F", "D", "D"]}, 
+            {"code": "RIF", "tb_pts": 41.0, "picks": ["D", "D", "F", "D", "F", "F", "D", "D", "D", "F", "D", "F", "F", "F"]}, 
+            {"code": "TREZ", "tb_pts": 41.0, "picks": ["D", "F", "F", "F", "D", "D", "D", "F", "F", "F", "D", "F", "F", "F"]}, 
+            {"code": "ES", "tb_pts": 42.0, "picks": ["D", "F", "F", "F", "F", "F", "F", "F", "F", "F", "D", "D", "D", "D"]}, 
+            {"code": "ART", "tb_pts": 43.0, "picks": ["F", "F", "F", "F", "F", "F", "F", "F", "F", "F", "D", "F", "F", "F"]}, 
+            {"code": "GPO", "tb_pts": 39.0, "picks": ["D", "F", "F", "F", "F", "D", "D", "F", "F", "F", "D", "F", "F", "D"]}, 
+            {"code": "FITZ", "tb_pts": 45.0, "picks": ["F", "F", "F", "F", "F", "F", "F", "F", "F", "F", "D", "F", "F", "F"]}, 
+            {"code": "GWB", "tb_pts": 45.0, "picks": ["D", "D", "F", "D", "F", "F", "D", "F", "F", "F", "F", "D", "F", "F"]}, 
+            {"code": "BVD", "tb_pts": 46.0, "picks": ["D", "D", "D", "F", "F", "F", "D", "D", "F", "F", "F", "F", "F", "F"]}, 
+            {"code": "RW", "tb_pts": 47.0, "picks": ["D", "F", "F", "D", "F", "F", "D", "F", "F", "D", "D", "F", "F", "F"]}, 
+            {"code": "JT8", "tb_pts": 34.0, "picks": ["D", "F", "F", "F", "F", "F", "D", "D", "F", "F", "D", "F", "F", "D"]}, 
+            {"code": "BG", "tb_pts": 42.0, "picks": ["F", "D", "F", "F", "F", "F", "F", "D", "F", "F", "F", "D", "D", "F"]}, 
+            {"code": "RGB", "tb_pts": 43.0, "picks": ["F", "F", "F", "F", "F", "D", "D", "F", "D", "F", "D", "F", "F", "F"]}, 
+            {"code": "TR82", "tb_pts": 43.0, "picks": ["F", "D", "F", "F", "F", "F", "F", "F", "F", "D", "D", "D", "F", "F"]}, 
+            {"code": "CH", "tb_pts": 43.5, "picks": ["D", "D", "D", "D", "F", "F", "F", "F", "F", "F", "F", "D", "D", "F"]}, 
+            {"code": "VE", "tb_pts": 44.0, "picks": ["D", "F", "F", "F", "F", "D", "D", "D", "F", "F", "D", "D", "D", "D"]}, 
+            {"code": "DJ", "tb_pts": 46.0, "picks": ["D", "D", "F", "F", "D", "D", "F", "F", "D", "F", "F", "F", "D", "F"]}, 
+            {"code": "FISH", "tb_pts": 46.0, "picks": ["D", "D", "F", "F", "F", "D", "F", "F", "F", "F", "F", "F", "F", "D"]}, 
+            {"code": "CN", "tb_pts": 48.0, "picks": ["F", "D", "D", "F", "F", "D", "D", "F", "F", "F", "F", "F", "F", "F"]}, 
+            {"code": "ACM", "tb_pts": 42.0, "picks": ["D", "F", "F", "F", "F", "D", "F", "D", "F", "D", "D", "F", "F", "F"]}, 
+            {"code": "BEE", "tb_pts": 42.0, "picks": ["D", "F", "F", "F", "F", "D", "F", "F", "F", "F", "F", "D", "F", "F"]}, 
+            {"code": "JM", "tb_pts": 42.0, "picks": ["F", "D", "D", "F", "F", "F", "D", "F", "F", "D", "F", "D", "F", "F"]}, 
+            {"code": "KT4", "tb_pts": 40.0, "picks": ["F", "F", "F", "F", "D", "D", "D", "F", "F", "D", "D", "F", "D", "D"]}, 
+            {"code": "RG", "tb_pts": 40.0, "picks": ["D", "F", "F", "F", "F", "F", "F", "D", "F", "D", "D", "D", "D", "D"]}, 
+            {"code": "DD", "tb_pts": 44.0, "picks": ["F", "F", "F", "F", "D", "D", "D", "F", "F", "D", "D", "F", "D", "D"]}, 
+            {"code": "EF", "tb_pts": 38.0, "picks": ["D", "D", "F", "F", "F", "F", "F", "F", "D", "D", "F", "F", "F", "D"]}, 
+            {"code": "VA", "tb_pts": 44.0, "picks": ["D", "F", "F", "F", "D", "F", "F", "F", "F", "F", "D", "D", "F", "D"]}, 
+            {"code": "JAL", "tb_pts": 45.0, "picks": ["D", "D", "F", "D", "F", "F", "F", "D", "D", "F", "F", "F", "D", "D"]}, 
+            {"code": "DAR", "tb_pts": 51.0, "picks": ["D", "F", "D", "F", "F", "F", "F", "D", "F", "F", "F", "F", "D", "D"]}, 
+            {"code": "NP2", "tb_pts": 40.0, "picks": ["F", "F", "F", "F", "F", "D", "F", "D", "F", "F", "F", "F", "D", "D"]}, 
+            {"code": "JT", "tb_pts": 39.0, "picks": ["F", "D", "D", "F", "F", "D", "F", "F", "F", "F", "D", "D", "F", "D"]}, 
+            {"code": "SD", "tb_pts": 43.0, "picks": ["F", "D", "F", "F", "D", "F", "F", "D", "F", "F", "F", "D", "F", "F"]}, 
+            {"code": "BST", "tb_pts": 44.0, "picks": ["D", "F", "F", "F", "F", "F", "F", "D", "F", "D", "F", "F", "F", "D"]}, 
+            {"code": "JC", "tb_pts": 45.0, "picks": ["F", "D", "F", "D", "F", "F", "F", "D", "F", "F", "F", "D", "F", "F"]}, 
+            {"code": "EP", "tb_pts": 46.0, "picks": ["F", "F", "D", "D", "F", "D", "F", "F", "F", "F", "D", "F", "D", "D"]}, 
+            {"code": "OTC", "tb_pts": 34.0, "picks": ["F", "D", "F", "F", "D", "F", "F", "F", "D", "F", "F", "D", "F", "F"]}, 
+            {"code": "CMS", "tb_pts": 49.0, "picks": ["F", "D", "F", "F", "D", "F", "F", "D", "D", "F", "D", "D", "F", "F"]}, 
+            {"code": "XXX", "tb_pts": 33.0, "picks": ["F", "F", "F", "F", "D", "D", "D", "D", "F", "D", "D", "F", "D", "D"]}, 
+            {"code": "AEC", "tb_pts": 28.0, "picks": ["F", "F", "D", "F", "F", "F", "F", "F", "F", "F", "F", "D", "F", "F"]}, 
+            {"code": "FI", "tb_pts": 42.0, "picks": ["F", "F", "D", "D", "D", "F", "F", "F", "F", "D", "F", "F", "D", "F"]}, 
+            {"code": "RH", "tb_pts": 42.0, "picks": ["D", "F", "D", "F", "F", "D", "F", "D", "F", "F", "F", "F", "F", "D"]}, 
+            {"code": "GCB3", "tb_pts": 43.0, "picks": ["F", "F", "F", "D", "F", "F", "D", "F", "D", "F", "F", "D", "F", "D"]}, 
+            {"code": "LKB", "tb_pts": 44.0, "picks": ["D", "F", "F", "F", "D", "D", "D", "D", "D", "F", "D", "D", "F", "D"]}, 
+            {"code": "BST1", "tb_pts": 45.0, "picks": ["F", "F", "F", "F", "D", "D", "F", "F", "F", "F", "F", "D", "F", "F"]}, 
+            {"code": "BOB", "tb_pts": 36.0, "picks": ["F", "F", "F", "D", "D", "F", "D", "D", "D", "F", "D", "F", "F", "D"]}, 
+            {"code": "PC", "tb_pts": 46.0, "picks": ["F", "D", "D", "D", "D", "F", "F", "F", "D", "D", "D", "D", "D", "F"]}, 
+            {"code": "TK", "tb_pts": 35.0, "picks": ["D", "F", "F", "F", "F", "F", "F", "D", "F", "D", "F", "D", "F", "D"]}, 
+            {"code": "MFA", "tb_pts": 37.0, "picks": ["D", "D", "D", "D", "D", "D", "F", "F", "F", "D", "F", "D", "D", "D"]}, 
+            {"code": "TR8", "tb_pts": 46.0, "picks": ["D", "F", "F", "F", "D", "D", "F", "D", "D", "F", "F", "D", "D", "D"]}, 
+            {"code": "NP", "tb_pts": 34.0, "picks": ["D", "F", "F", "F", "D", "D", "F", "D", "F", "F", "F", "D", "F", "D"]}, 
+            {"code": "RUN", "tb_pts": 33.0, "picks": ["F", "D", "D", "F", "F", "F", "F", "D", "D", "D", "F", "F", "F", "D"]}, 
+            {"code": "KH", "tb_pts": 42.0, "picks": ["F", "D", "F", "D", "D", "D", "D", "F", "D", "D", "F", "D", "F", "D"]}, 
+            {"code": "MPE", "tb_pts": 42.0, "picks": ["F", "D", "F", "D", "F", "D", "F", "D", "F", "D", "F", "D", "F", "D"]}, 
+            {"code": "ZIG", "tb_pts": 50.5, "picks": ["F", "F", "F", "D", "F", "D", "F", "D", "F", "D", "F", "D", "F", "D"]}
+        ],
+        "live_mnf_pts": 0 
+    };
+
+    // Live Fetching & Evaluation Logic
+    async function fetchLiveScores() {
+        try {
+            document.getElementById('sync-status').innerText = '🔄 Syncing live scores...';
+            
+            // Standard public ESPN NFL Scoreboard API
+            const baseUrl = 'https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard';
+            const res = await fetch(baseUrl);
+            const apiData = await res.json();
+            
+            let allEvents = apiData.events || [];
+            
+            // Check if any games from our pool are missing in the current week's data
+            let missingGames = false;
+            data.games.forEach(game => {
+                const favAbbr = logoMap[game.fav];
+                const dogAbbr = logoMap[game.dog];
+                const event = allEvents.find(e => {
+                    if (!e.competitions || !e.competitions[0]) return false;
+                    const teams = e.competitions[0].competitors.map(c => c.team.abbreviation.toUpperCase());
+                    return teams.includes(favAbbr) && teams.includes(dogAbbr);
+                });
+                if (!event) missingGames = true;
+            });
+
+            // If we are missing games, the NFL week likely rolled over (e.g., Tuesday morning)
+            // We fetch the previous week's API data to grab the final scores.
+            if (missingGames && apiData.week && apiData.week.number > 1) {
+                const prevWeek = apiData.week.number - 1;
+                const seasonType = apiData.season.type;
+                const prevRes = await fetch(`${baseUrl}?week=${prevWeek}&seasontype=${seasonType}`);
+                const prevData = await prevRes.json();
+                if (prevData.events) {
+                    allEvents = allEvents.concat(prevData.events);
+                }
+            }
+
+            // Map the API events to our games
+            data.games.forEach(game => {
+                const favAbbr = logoMap[game.fav];
+                const dogAbbr = logoMap[game.dog];
+                
+                // Find matching event in our combined events array
+                const event = allEvents.find(e => {
+                    if (!e.competitions || !e.competitions[0]) return false;
+                    const teams = e.competitions[0].competitors.map(c => c.team.abbreviation.toUpperCase());
+                    return teams.includes(favAbbr) && teams.includes(dogAbbr);
+                });
+
+                if (event) {
+                    const comp = event.competitions[0];
+                    const favTeam = comp.competitors.find(c => c.team.abbreviation.toUpperCase() === favAbbr);
+                    const dogTeam = comp.competitors.find(c => c.team.abbreviation.toUpperCase() === dogAbbr);
+                    
+                    game.liveScoreFav = parseInt(favTeam.score) || 0;
+                    game.liveScoreDog = parseInt(dogTeam.score) || 0;
+                    game.clock = comp.status.type.detail; 
+                    game.isFinal = comp.status.type.completed;
+                    game.isLive = comp.status.type.state === 'in' || comp.status.type.state === 'post';
+
+                    const margin = game.liveScoreFav - game.liveScoreDog;
+                    if (margin > game.spread) {
+                        game.currentCover = 'F';
+                    } else if (margin < game.spread) {
+                        game.currentCover = 'D';
+                    } else {
+                        game.currentCover = 'PUSH';
+                    }
+                } else {
+                    // Game STILL not found after checking previous week
+                    game.liveScoreFav = 0;
+                    game.liveScoreDog = 0;
+                    game.clock = "Scheduled";
+                    game.isFinal = false;
+                    game.isLive = false;
+                    game.currentCover = null;
+                }
+            });
+
+            // Extract the MNF Tiebreaker Pts specifically from the final game in the array
+            const mnfGame = data.games[13]; 
+            data.live_mnf_pts = mnfGame.liveScoreFav + mnfGame.liveScoreDog;
+
+            evaluateParticipants();
+            renderTable();
+
+            const now = new Date();
+            document.getElementById('sync-status').innerText = '✅ Live synced at ' + now.toLocaleTimeString();
+            document.getElementById('sync-status').style.color = '#bbf7d0';
+
+        } catch(e) {
+            console.error("Error connecting to ESPN API:", e);
+            document.getElementById('sync-status').innerText = '⚠️ Error syncing scores. Will retry automatically...';
+            document.getElementById('sync-status').style.color = '#fca5a5';
+        }
+    }
+
+    function evaluateParticipants() {
+        data.participants.forEach(p => {
+            let wins = 0;
+            p.picks.forEach((pick, i) => {
+                const game = data.games[i];
+                // Award points only if the game has started and the user's pick currently covers the spread
+                if ((game.isLive || game.isFinal) && game.currentCover === pick) {
+                    wins++;
+                }
+            });
+            p.liveWins = wins;
+            // Calculate absolute difference from actual MNF score
+            p.tb_diff = Math.abs(p.tb_pts - data.live_mnf_pts); 
+        });
+
+        // Re-sort Leaderboard: By Live Wins (Desc), then Tiebreaker Diff (Ascending)
+        data.participants.sort((a, b) => {
+            if (b.liveWins !== a.liveWins) return b.liveWins - a.liveWins;
+            return a.tb_diff - b.tb_diff;
+        });
+    }
+
+    // UI RENDERERS
+    function renderTable() {
+        const tbody = document.getElementById('leaderboard-body');
+        let html = '';
+        
+        let rankCounter = 1;
+        let displayRank = 1;
+        let prevWins = -1;
+        let prevDiff = -1;
+
+        data.participants.forEach((p) => {
+            // Logic to handle Ties in rank
+            if (p.liveWins !== prevWins || p.tb_diff !== prevDiff) {
+                displayRank = rankCounter;
+                prevWins = p.liveWins;
+                prevDiff = p.tb_diff;
+            }
+            rankCounter++;
+            
+            let rankColor = "var(--text-muted)";
+            let rankBadge = displayRank;
+            let highlightStyle = "";
+            
+            if (displayRank === 1) {
+                rankColor = "var(--gold)";
+                rankBadge = "🥇 1";
+                highlightStyle = "background: rgba(217, 119, 6, 0.08); border-left: 4px solid var(--gold);";
+            } else if (displayRank === 2) {
+                rankColor = "var(--silver)";
+                rankBadge = "🥈 2";
+                highlightStyle = "background: rgba(100, 116, 139, 0.05); border-left: 4px solid var(--silver);";
+            } else if (displayRank === 3) {
+                rankBadge = "🥉 3";
+            }
+            
+            html += `
+                <tr onclick="showDetails('${p.code}')" style="${highlightStyle}">
+                    <td style="font-weight:900; color:${rankColor}; padding-left:12px;">${rankBadge}</td>
+                    <td style="font-weight:800;">${p.code}</td>
+                    <td style="color:#0284c7; font-weight:800;">${p.liveWins}</td>
+                    <td style="font-weight:600;">${p.tb_pts}</td>
+                    <td style="font-weight:600; color:var(--text-muted)">±${p.tb_diff}</td>
+                    <td><a href="#" onclick="event.preventDefault();" class="btn-view">View</a></td>
+                </tr>
+            `;
+        });
+        tbody.innerHTML = html;
+    }
+
+    function showDetails(code) {
+        document.getElementById('list-view').style.display = 'none';
+        document.getElementById('detail-view').style.display = 'block';
+        window.scrollTo(0, 0); 
+        
+        const p = data.participants.find(x => x.code === code);
+        const content = document.getElementById('details-content');
+        if (!p) return;
+        
+        let html = `
+            <div class="details-header">
+                <h2>${p.code}'s Picks</h2>
+            </div>
+            <div class="details-stats">
+                <div class="stat-box">
+                    <span class="stat-label">Total Live Wins</span>
+                    <span class="stat-val highlight">${p.liveWins} / 14</span>
+                </div>
+                <div class="stat-box">
+                    <span class="stat-label">Tiebreaker Pick</span>
+                    <span class="stat-val">${p.tb_pts} Pts</span>
+                </div>
+                <div class="stat-box">
+                    <span class="stat-label">TB Diff (Live MNF: ${data.live_mnf_pts})</span>
+                    <span class="stat-val">Off by ${p.tb_diff}</span>
+                </div>
+            </div>
+            <div class="games-list">
+        `;
+                    
+        data.games.forEach((g, i) => {
+            const pick = p.picks[i];
+            
+            let isCorrect = false;
+            let iconClass = 'pending';
+            let iconMark = '○';
+            let textClass = 'text-pending';
+
+            if (g.isLive || g.isFinal) {
+                isCorrect = pick === g.currentCover;
+                iconClass = isCorrect ? 'correct' : 'wrong';
+                iconMark = isCorrect ? '✓' : '✗';
+                textClass = isCorrect ? 'text-correct' : 'text-wrong';
+            }
+            
+            let pickedTeamName = pick === 'F' ? g.fav : g.dog;
+
+            html += `
+                <div class="game-row">
+                    <div class="matchup">
+                        <div class="team-block">
+                            <img src="${getLogo(g.fav)}" class="team-logo">
+                            <span>${g.fav}</span>
+                        </div>
+                        <div class="score-block">
+                            ${g.isLive || g.isFinal ? 
+                                `<span class="score-text">${g.liveScoreFav} - ${g.liveScoreDog}</span>
+                                 <span class="clock-text" style="${g.isFinal ? 'color:#475569;' : ''}">${g.clock}</span>
+                                 <span class="spread-text">Fav -${g.spread}</span>` 
+                            : 
+                                `<span class="spread-text" style="font-weight:700; color:#0f172a;">Fav -${g.spread}</span>
+                                 <span class="spread-text">Scheduled</span>`
+                            }
+                        </div>
+                        <div class="team-block">
+                            <img src="${getLogo(g.dog)}" class="team-logo">
+                            <span>${g.dog}</span>
+                        </div>
+                    </div>
+                    <div class="pick-col">
+                        <span class="badge">
+                            <img src="${getLogo(pickedTeamName)}" class="team-logo-small">
+                            <span class="${textClass}">${pickedTeamName}</span>
+                        </span>
+                        <span class="icon ${iconClass}">${iconMark}</span>
+                    </div>
+                </div>
+            `;
+        });
+        
+        html += `</div>`;
+        content.innerHTML = html;
+    }
+
+    function showList() {
+        document.getElementById('detail-view').style.display = 'none';
+        document.getElementById('list-view').style.display = 'block';
+        window.scrollTo(0, 0);
+    }
+
+    // Initialize application
+    window.onload = () => {
+        // Initial generic render to show layout while fetching
+        evaluateParticipants();
+        renderTable(); 
+        
+        // Fetch real data
+        fetchLiveScores();
+        
+        // Setup polling every 30 seconds for real-time updates
+        setInterval(fetchLiveScores, 30000);
+    };
+</script>
+
+</body>
+</html>
