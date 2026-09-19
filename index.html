@@ -1,0 +1,879 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>MacMurphy's Football Pool - LIVE</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Uncial+Antiqua&display=swap');
+
+        :root {
+            --bg: #114b21;
+            --text-main: #ffffff;
+            --panel-bg: #ffffff;
+            --text-dark: #0f172a;
+            --text-muted: #64748b;
+            --border-light: #e2e8f0;
+            --hover-light: #f8fafc;
+            --correct-text: #16a34a;
+            --wrong-text: #dc2626;
+            --gold: #d97706;
+            --silver: #64748b;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg);
+            color: var(--text-main);
+            margin: 0;
+            padding: 20px;
+            -webkit-font-smoothing: antialiased;
+        }
+        .container { max-width: 900px; margin: 0 auto; }
+        .header {
+            text-align: center;
+            margin-bottom: 12px;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.2);
+            padding-bottom: 16px;
+        }
+        .celtic-title {
+            font-family: 'Uncial Antiqua', cursive;
+            font-size: clamp(1.8rem, 8.5vw, 2.4rem);
+            font-weight: bold;
+            display: block;
+            color: #ffffff;
+            text-shadow: 2px 3px 5px rgba(0, 0, 0, 0.4);
+            margin-bottom: -4px;
+            text-transform: none; 
+            white-space: nowrap; 
+        }
+        .shamrock-apos {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            font-size: 0.55em;
+            vertical-align: super;
+            color: #ffffff; 
+            margin: 0 -1px;
+            display: inline-block;
+            transform: rotate(10deg);
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+        }
+        
+        #sync-status {
+            text-align: center;
+            color: #bbf7d0;
+            font-size: 0.85rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+            padding: 6px;
+            border-radius: 6px;
+            background: rgba(0,0,0,0.15);
+        }
+
+        /* Accordion Structure */
+        .accordion { margin-bottom: 16px; }
+        .accordion-header {
+            background: var(--panel-bg);
+            border: 1px solid var(--border-light);
+            padding: 16px 20px;
+            border-radius: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+        .accordion-header:hover { box-shadow: 0 6px 12px rgba(0,0,0,0.15); }
+        .accordion-header.active {
+            border-bottom-left-radius: 0;
+            border-bottom-right-radius: 0;
+            border-bottom: 1px solid transparent;
+            margin-bottom: 0;
+        }
+        .accordion-content {
+            display: none;
+            background: var(--panel-bg);
+            border: 1px solid var(--border-light);
+            border-top: none;
+            border-bottom-left-radius: 12px;
+            border-bottom-right-radius: 12px;
+            padding: 0;
+            overflow: hidden;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        .table-container { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; color: var(--text-dark); }
+        table { width: 100%; border-collapse: collapse; text-align: left; white-space: nowrap; }
+        th {
+            background: #f1f5f9; color: #475569; padding: 14px 12px; font-size: 0.8rem;
+            text-transform: uppercase; font-weight: 700; border-bottom: 2px solid #cbd5e1;
+            position: sticky; top: 0; z-index: 10;
+        }
+        td { padding: 12px; border-bottom: 1px solid var(--border-light); font-size: 0.95rem; vertical-align: middle; color: var(--text-dark); }
+        tr { cursor: pointer; transition: background-color 0.15s ease; }
+        tr:hover { background-color: var(--hover-light); }
+        
+        .badge {
+            display: inline-flex; align-items: center; justify-content: center; padding: 4px 10px;
+            border-radius: 6px; font-size: 0.85rem; font-weight: 700; text-align: center; gap: 8px;
+            border: 1px solid var(--border-light); background: #f8fafc; color: var(--text-dark);
+        }
+        .text-correct { color: var(--correct-text) !important; font-weight: 800; }
+        .text-wrong {
+            color: var(--wrong-text) !important; font-weight: 800; text-decoration: line-through;
+            text-decoration-thickness: 2px; text-decoration-color: rgba(220, 38, 38, 0.4);
+        }
+        .text-pending { color: var(--text-muted) !important; font-weight: 600; }
+        
+        .btn-view {
+            color: #0284c7; text-decoration: none; font-weight: 700; background: #e0f2fe;
+            padding: 6px 14px; border-radius: 6px; font-size: 0.85rem; pointer-events: none;
+        }
+        .btn-back {
+            display: inline-flex; align-items: center; justify-content: center; color: #114b21;
+            text-decoration: none; font-weight: 800; background: #ffffff; padding: 10px 16px;
+            border-radius: 8px; margin-bottom: 16px; transition: background 0.2s; cursor: pointer;
+            border: 1px solid var(--border-light); box-shadow: 0 2px 4px rgba(0,0,0,0.15);
+        }
+        .btn-back:hover { background: #f0fdf4; }
+        .team-logo { width: 30px; height: 30px; object-fit: contain; vertical-align: middle; }
+        .team-logo-small { width: 18px; height: 18px; object-fit: contain; }
+
+        .details-panel {
+            background: var(--panel-bg); color: var(--text-dark); border: 1px solid var(--border-light);
+            border-radius: 12px; padding: 24px; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+        }
+        .details-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-bottom: 12px; border-bottom: 1px solid var(--border-light); }
+        .details-header h2 { margin: 0; color: var(--text-dark); font-size: 1.8rem; }
+        .details-stats { display: flex; gap: 12px; margin-bottom: 24px; }
+        .stat-box { flex: 1; background: #f8fafc; padding: 12px; border-radius: 8px; border: 1px solid var(--border-light); text-align: center; }
+        .stat-label { display: block; color: var(--text-muted); font-size: 0.7rem; text-transform: uppercase; margin-bottom: 6px; font-weight: 700; }
+        .stat-val { font-weight: 900; color: var(--text-dark); font-size: 1.2rem; }
+        .stat-val.highlight { color: #0284c7; }
+        
+        .game-row { display: flex; align-items: center; padding: 14px 0; border-bottom: 1px solid var(--border-light); font-size: 0.95rem; }
+        .game-row:last-child { border-bottom: none; }
+        .matchup { flex: 1; display: flex; align-items: center; justify-content: space-between; font-weight: 600; margin-right: 16px;}
+        .team-block { display: flex; flex-direction: column; align-items: center; gap: 4px; width: 60px; text-align: center; font-size: 0.8rem;}
+        .score-block { text-align: center; flex: 1; }
+        .score-text { font-size: 1.2rem; font-weight: 900; color: #0f172a; display: block;}
+        .clock-text { font-size: 0.75rem; font-weight: 700; color: #dc2626; display: block; margin-top:2px;}
+        .spread-text { font-size: 0.75rem; color: #64748b; display: block;}
+
+        .pick-col { flex: 0 0 140px; display: flex; align-items: center; justify-content: flex-end; gap: 10px; }
+        .icon { display: inline-flex; align-items: center; justify-content: center; width: 24px; height: 24px; border-radius: 50%; font-size: 13px; font-weight: bold; }
+        .icon.correct { background: #dcfce7; color: #16a34a; border: 1px solid #bbf7d0; }
+        .icon.wrong { background: #fee2e2; color: #dc2626; border: 1px solid #fecaca; }
+        .icon.pending { background: #f1f5f9; color: #94a3b8; border: 1px solid #e2e8f0; }
+
+        #list-view { display: block; }
+        #detail-view { display: none; }
+
+        @media (max-width: 600px) {
+            body { padding: 12px; }
+            th { padding: 12px 8px; font-size: 0.75rem; }
+            td { padding: 12px 8px; font-size: 0.9rem; }
+            .th-long { display: none; }
+            .th-short { display: inline; }
+            .btn-view { padding: 6px 8px; font-size: 0.75rem; }
+            .btn-back { width: 100%; box-sizing: border-box; font-size: 1rem; padding: 12px; }
+            .details-panel { padding: 16px; }
+            .details-header h2 { font-size: 1.5rem; }
+            .details-stats { flex-direction: column; gap: 8px; }
+            .stat-box { display: flex; justify-content: space-between; align-items: center; text-align: left; padding: 10px 16px; }
+            .stat-label { margin-bottom: 0; }
+            .game-row { font-size: 0.9rem; flex-wrap: wrap; gap: 12px; }
+            .pick-col { flex: 0 0 100%; justify-content: space-between; background: #f8fafc; border: 1px solid var(--border-light); padding: 10px; border-radius: 8px; }
+            .matchup { width: 100%; margin-right: 0;}
+            .accordion-header h2 { font-size: 1.2rem !important; }
+        }
+        @media (min-width: 601px) { .th-short { display: none; } }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header">
+        <h1>
+            <span class="celtic-title">MacMurphy<span class="shamrock-apos">☘</span>s</span> 
+        </h1>
+    </div>
+    
+    <div id="sync-status">🔄 Initializing Live Connection to ESPN...</div>
+
+    <!-- Master List View -->
+    <div id="list-view">
+        
+        <!-- King of the Hill (Overall Summary) -->
+        <div class="accordion">
+            <div class="accordion-header active" onclick="toggleAccordion('koh')">
+                <h2 style="color:var(--text-dark); margin:0; font-size:1.4rem;">👑 King of the Hill (Season Total)</h2>
+                <span id="icon-koh" style="color:var(--text-dark); font-weight:bold; font-size:1.5rem;">−</span>
+            </div>
+            <div class="accordion-content" id="content-koh" style="display:block;">
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th><span class="th-long">Rank</span><span class="th-short">#</span></th>
+                                <th>Name</th>
+                                <th>Season Wins</th>
+                            </tr>
+                        </thead>
+                        <tbody id="koh-body">
+                            <!-- Populated by JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Week 2 Live Pool -->
+        <div class="accordion">
+            <div class="accordion-header" onclick="toggleAccordion('week2')">
+                <h2 style="color:var(--text-dark); margin:0; font-size:1.4rem;">🏈 Week 2 Live Pool</h2>
+                <span id="icon-week2" style="color:var(--text-dark); font-weight:bold; font-size:1.5rem;">+</span>
+            </div>
+            <div class="accordion-content" id="content-week2">
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th><span class="th-long">Rank</span><span class="th-short">#</span></th>
+                                <th>Name</th>
+                                <th><span class="th-long">Live Wins</span><span class="th-short">W</span></th>
+                                <th>TB Pts</th>
+                                <th>TB Diff</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody id="leaderboard-body">
+                            <!-- Populated by Live Javascript engine -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Week 1 Static Archive -->
+        <div class="accordion">
+            <div class="accordion-header" onclick="toggleAccordion('week1')">
+                <h2 style="color:var(--text-dark); margin:0; font-size:1.4rem;">✅ Week 1 Results</h2>
+                <span id="icon-week1" style="color:var(--text-dark); font-weight:bold; font-size:1.5rem;">+</span>
+            </div>
+            <div class="accordion-content" id="content-week1">
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th><span class="th-long">Rank</span><span class="th-short">#</span></th>
+                                <th>Name</th>
+                                <th><span class="th-long">Final Wins</span><span class="th-short">W</span></th>
+                                <th>TB Pts</th>
+                                <th>TB Diff</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody id="week1-body">
+                            <!-- Populated by static Archive script -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Detail View for individual picks -->
+    <div id="detail-view">
+        <button class="btn-back" onclick="showList()">
+            &larr; Back to Dashboard
+        </button>
+        <div class="details-panel" id="details-content">
+            <!-- Populated by JavaScript -->
+        </div>
+    </div>
+</div>
+
+<script>
+    // NFL Team to ESPN Abbreviation Map for API lookups (Includes "WSH")
+    const logoMap = {
+        "Titans": "TEN", "J-E-T-S": "NYJ", "Cowboys": "DAL", "Giants": "NYG",
+        "Steelers": "PIT", "Falcons": "ATL", "Bears": "CHI", "Panthers": "CAR",
+        "Ravens": "BAL", "Colts": "IND", "Bengals": "CIN", "Buccaneers": "TB",
+        "Lions": "DET", "Saints": "NO", "Bills": "BUF", "Texans": "HOU",
+        "Jaguars": "JAX", "Browns": "CLE", "Raiders": "LV", "Dolphins": "MIA",
+        "Chargers": "LAC", "Cardinals": "ARI", "Vikings": "MIN", "Packers": "GB",
+        "Eagles": "PHI", "Commanders": "WSH", "Chiefs": "KC", "Broncos": "DEN",
+        "Rams": "LAR", "49ers": "SF", "Seahawks": "SEA", "Patriots": "NE"
+    };
+
+    function getLogo(teamName) {
+        const abbr = logoMap[teamName] || "NFL";
+        return `https://a.espncdn.com/i/teamlogos/nfl/500/${abbr.toLowerCase()}.png`;
+    }
+
+    function toggleAccordion(id) {
+        const content = document.getElementById('content-' + id);
+        const icon = document.getElementById('icon-' + id);
+        const header = content.previousElementSibling;
+
+        if (content.style.display === 'block') {
+            content.style.display = 'none';
+            icon.innerText = '+';
+            header.classList.remove('active');
+        } else {
+            content.style.display = 'block';
+            icon.innerText = '−';
+            header.classList.add('active');
+        }
+    }
+
+    // --- 1. FULLY STATIC WEEK 1 ARCHIVE DATA ---
+    const week1Data = {
+        "games": [
+            {"fav": "Titans", "spread": 1.5, "dog": "J-E-T-S", "liveScoreFav": 17, "liveScoreDog": 24, "clock": "Final", "isFinal": true, "isLive": false, "currentCover": "D"}, 
+            {"fav": "Cowboys", "spread": 2.5, "dog": "Giants", "liveScoreFav": 33, "liveScoreDog": 17, "clock": "Final", "isFinal": true, "isLive": false, "currentCover": "D"}, 
+            {"fav": "Steelers", "spread": 3.5, "dog": "Falcons", "liveScoreFav": 18, "liveScoreDog": 10, "clock": "Final", "isFinal": true, "isLive": false, "currentCover": "F"}, 
+            {"fav": "Bears", "spread": 2.5, "dog": "Panthers", "liveScoreFav": 24, "liveScoreDog": 17, "clock": "Final", "isFinal": true, "isLive": false, "currentCover": "F"}, 
+            {"fav": "Ravens", "spread": 3.5, "dog": "Colts", "liveScoreFav": 27, "liveScoreDog": 24, "clock": "Final", "isFinal": true, "isLive": false, "currentCover": "F"}, 
+            {"fav": "Bengals", "spread": 3.5, "dog": "Buccaneers", "liveScoreFav": 10, "liveScoreDog": 16, "clock": "Final", "isFinal": true, "isLive": false, "currentCover": "F"}, 
+            {"fav": "Lions", "spread": 7.5, "dog": "Saints", "liveScoreFav": 26, "liveScoreDog": 20, "clock": "Final", "isFinal": true, "isLive": false, "currentCover": "D"}, 
+            {"fav": "Bills", "spread": 1.5, "dog": "Texans", "liveScoreFav": 34, "liveScoreDog": 28, "clock": "Final", "isFinal": true, "isLive": false, "currentCover": "F"}, 
+            {"fav": "Jaguars", "spread": 7.5, "dog": "Browns", "liveScoreFav": 23, "liveScoreDog": 13, "clock": "Final", "isFinal": true, "isLive": false, "currentCover": "F"}, 
+            {"fav": "Raiders", "spread": 3.5, "dog": "Dolphins", "liveScoreFav": 22, "liveScoreDog": 10, "clock": "Final", "isFinal": true, "isLive": false, "currentCover": "F"}, 
+            {"fav": "Chargers", "spread": 10.5, "dog": "Cardinals", "liveScoreFav": 22, "liveScoreDog": 10, "clock": "Final", "isFinal": true, "isLive": false, "currentCover": "D"}, 
+            {"fav": "Vikings", "spread": 1.5, "dog": "Packers", "liveScoreFav": 28, "liveScoreDog": 20, "clock": "Final", "isFinal": true, "isLive": false, "currentCover": "F"}, 
+            {"fav": "Eagles", "spread": 5.5, "dog": "Commanders", "liveScoreFav": 37, "liveScoreDog": 20, "clock": "Final", "isFinal": true, "isLive": false, "currentCover": "D"}, 
+            {"fav": "Chiefs", "spread": 2.5, "dog": "Broncos", "liveScoreFav": 31, "liveScoreDog": 10, "clock": "Final", "isFinal": true, "isLive": false, "currentCover": "F"}
+        ], 
+        "mnf_pts_actual": 41, 
+        "participants": [
+            {"code": "MJ", "wins": 11, "mnf_pick": "F", "tb_pts": 42.0, "picks": ["F", "F", "D", "F", "F", "F", "D", "F", "F", "F", "D", "F", "D", "F"]}, 
+            {"code": "HIC", "wins": 11, "mnf_pick": "D", "tb_pts": 44.0, "picks": ["F", "D", "F", "F", "F", "F", "D", "F", "F", "F", "F", "F", "D", "D"]}, 
+            {"code": "CC", "wins": 11, "mnf_pick": "D", "tb_pts": 34.0, "picks": ["F", "D", "F", "F", "D", "F", "D", "F", "F", "F", "D", "F", "D", "D"]}, 
+            {"code": "RIF", "wins": 10, "mnf_pick": "F", "tb_pts": 41.0, "picks": ["D", "D", "F", "D", "F", "F", "D", "D", "D", "F", "D", "F", "F", "F"]}, 
+            {"code": "TREZ", "wins": 10, "mnf_pick": "F", "tb_pts": 41.0, "picks": ["D", "F", "F", "F", "D", "D", "D", "F", "F", "F", "D", "F", "F", "F"]}, 
+            {"code": "ES", "wins": 10, "mnf_pick": "D", "tb_pts": 42.0, "picks": ["D", "F", "F", "F", "F", "F", "F", "F", "F", "F", "D", "D", "D", "D"]}, 
+            {"code": "ART", "wins": 10, "mnf_pick": "F", "tb_pts": 43.0, "picks": ["F", "F", "F", "F", "F", "F", "F", "F", "F", "F", "D", "F", "F", "F"]}, 
+            {"code": "GPO", "wins": 10, "mnf_pick": "D", "tb_pts": 39.0, "picks": ["D", "F", "F", "F", "F", "D", "D", "F", "F", "F", "D", "F", "F", "D"]}, 
+            {"code": "FITZ", "wins": 10, "mnf_pick": "F", "tb_pts": 45.0, "picks": ["F", "F", "F", "F", "F", "F", "F", "F", "F", "F", "D", "F", "F", "F"]}, 
+            {"code": "GWB", "wins": 10, "mnf_pick": "F", "tb_pts": 45.0, "picks": ["D", "D", "F", "D", "F", "F", "D", "F", "F", "F", "F", "D", "F", "F"]}, 
+            {"code": "BVD", "wins": 10, "mnf_pick": "F", "tb_pts": 46.0, "picks": ["D", "D", "D", "F", "F", "F", "D", "D", "F", "F", "F", "F", "F", "F"]}, 
+            {"code": "RW", "wins": 10, "mnf_pick": "F", "tb_pts": 47.0, "picks": ["D", "F", "F", "D", "F", "F", "D", "F", "F", "D", "D", "F", "F", "F"]}, 
+            {"code": "JT8", "wins": 10, "mnf_pick": "D", "tb_pts": 34.0, "picks": ["D", "F", "F", "F", "F", "F", "D", "D", "F", "F", "D", "F", "F", "D"]}, 
+            {"code": "BG", "wins": 9, "mnf_pick": "F", "tb_pts": 42.0, "picks": ["F", "D", "F", "F", "F", "F", "F", "D", "F", "F", "F", "D", "D", "F"]}, 
+            {"code": "RGB", "wins": 9, "mnf_pick": "F", "tb_pts": 43.0, "picks": ["F", "F", "F", "F", "F", "D", "D", "F", "D", "F", "D", "F", "F", "F"]}, 
+            {"code": "TR82", "wins": 9, "mnf_pick": "F", "tb_pts": 43.0, "picks": ["F", "D", "F", "F", "F", "F", "F", "F", "F", "D", "D", "D", "F", "F"]}, 
+            {"code": "CH", "wins": 9, "mnf_pick": "F", "tb_pts": 43.5, "picks": ["D", "D", "D", "D", "F", "F", "F", "F", "F", "F", "F", "D", "D", "F"]}, 
+            {"code": "VE", "wins": 9, "mnf_pick": "D", "tb_pts": 44.0, "picks": ["D", "F", "F", "F", "F", "D", "D", "D", "F", "F", "D", "D", "D", "D"]}, 
+            {"code": "DJ", "wins": 9, "mnf_pick": "F", "tb_pts": 46.0, "picks": ["D", "D", "F", "F", "D", "D", "F", "F", "D", "F", "F", "F", "D", "F"]}, 
+            {"code": "FISH", "wins": 9, "mnf_pick": "D", "tb_pts": 46.0, "picks": ["D", "D", "F", "F", "F", "D", "F", "F", "F", "F", "F", "F", "F", "D"]}, 
+            {"code": "CN", "wins": 9, "mnf_pick": "F", "tb_pts": 48.0, "picks": ["F", "D", "D", "F", "F", "D", "D", "F", "F", "F", "F", "F", "F", "F"]}, 
+            {"code": "ACM", "wins": 8, "mnf_pick": "F", "tb_pts": 42.0, "picks": ["D", "F", "F", "F", "F", "D", "F", "D", "F", "D", "D", "F", "F", "F"]}, 
+            {"code": "BEE", "wins": 8, "mnf_pick": "F", "tb_pts": 42.0, "picks": ["D", "F", "F", "F", "F", "D", "F", "F", "F", "F", "F", "D", "F", "F"]}, 
+            {"code": "JM", "wins": 8, "mnf_pick": "F", "tb_pts": 42.0, "picks": ["F", "D", "D", "F", "F", "F", "D", "F", "F", "D", "F", "D", "F", "F"]}, 
+            {"code": "KT4", "wins": 8, "mnf_pick": "D", "tb_pts": 40.0, "picks": ["F", "F", "F", "F", "D", "D", "D", "F", "F", "D", "D", "F", "D", "D"]}, 
+            {"code": "RG", "wins": 8, "mnf_pick": "D", "tb_pts": 40.0, "picks": ["D", "F", "F", "F", "F", "F", "F", "D", "F", "D", "D", "D", "D", "D"]}, 
+            {"code": "DD", "wins": 8, "mnf_pick": "D", "tb_pts": 44.0, "picks": ["F", "F", "F", "F", "D", "D", "D", "F", "F", "D", "D", "F", "D", "D"]}, 
+            {"code": "EF", "wins": 8, "mnf_pick": "D", "tb_pts": 38.0, "picks": ["D", "D", "F", "F", "F", "F", "F", "F", "D", "D", "F", "F", "F", "D"]}, 
+            {"code": "VA", "wins": 8, "mnf_pick": "D", "tb_pts": 44.0, "picks": ["D", "F", "F", "F", "D", "F", "F", "F", "F", "F", "D", "D", "F", "D"]}, 
+            {"code": "JAL", "wins": 8, "mnf_pick": "D", "tb_pts": 45.0, "picks": ["D", "D", "F", "D", "F", "F", "F", "D", "D", "F", "F", "F", "D", "D"]}, 
+            {"code": "DAR", "wins": 8, "mnf_pick": "D", "tb_pts": 51.0, "picks": ["D", "F", "D", "F", "F", "F", "F", "D", "F", "F", "F", "F", "D", "D"]}, 
+            {"code": "NP2", "wins": 7, "mnf_pick": "D", "tb_pts": 40.0, "picks": ["F", "F", "F", "F", "F", "D", "F", "D", "F", "F", "F", "F", "D", "D"]}, 
+            {"code": "JT", "wins": 7, "mnf_pick": "D", "tb_pts": 39.0, "picks": ["F", "D", "D", "F", "F", "D", "F", "F", "F", "F", "D", "D", "F", "D"]}, 
+            {"code": "SD", "wins": 7, "mnf_pick": "F", "tb_pts": 43.0, "picks": ["F", "D", "F", "F", "D", "F", "F", "D", "F", "F", "F", "D", "F", "F"]}, 
+            {"code": "BST", "wins": 7, "mnf_pick": "D", "tb_pts": 44.0, "picks": ["D", "F", "F", "F", "F", "F", "F", "D", "F", "D", "F", "F", "F", "D"]}, 
+            {"code": "JC", "wins": 7, "mnf_pick": "F", "tb_pts": 45.0, "picks": ["F", "D", "F", "D", "F", "F", "F", "D", "F", "F", "F", "D", "F", "F"]}, 
+            {"code": "EP", "wins": 7, "mnf_pick": "D", "tb_pts": 46.0, "picks": ["F", "F", "D", "D", "F", "D", "F", "F", "F", "F", "D", "F", "D", "D"]}, 
+            {"code": "OTC", "wins": 7, "mnf_pick": "F", "tb_pts": 34.0, "picks": ["F", "D", "F", "F", "D", "F", "F", "F", "D", "F", "F", "D", "F", "F"]}, 
+            {"code": "CMS", "wins": 7, "mnf_pick": "F", "tb_pts": 49.0, "picks": ["F", "D", "F", "F", "D", "F", "F", "D", "D", "F", "D", "D", "F", "F"]}, 
+            {"code": "XXX", "wins": 7, "mnf_pick": "D", "tb_pts": 33.0, "picks": ["F", "F", "F", "F", "D", "D", "D", "D", "F", "D", "D", "F", "D", "D"]}, 
+            {"code": "AEC", "wins": 7, "mnf_pick": "F", "tb_pts": 28.0, "picks": ["F", "F", "D", "F", "F", "F", "F", "F", "F", "F", "F", "D", "F", "F"]}, 
+            {"code": "FI", "wins": 6, "mnf_pick": "F", "tb_pts": 42.0, "picks": ["F", "F", "D", "D", "D", "F", "F", "F", "F", "D", "F", "F", "D", "F"]}, 
+            {"code": "RH", "wins": 6, "mnf_pick": "D", "tb_pts": 42.0, "picks": ["D", "F", "D", "F", "F", "D", "F", "D", "F", "F", "F", "F", "F", "D"]}, 
+            {"code": "GCB3", "wins": 6, "mnf_pick": "D", "tb_pts": 43.0, "picks": ["F", "F", "F", "D", "F", "F", "D", "F", "D", "F", "F", "D", "F", "D"]}, 
+            {"code": "LKB", "wins": 6, "mnf_pick": "D", "tb_pts": 44.0, "picks": ["D", "F", "F", "F", "D", "D", "D", "D", "D", "F", "D", "D", "F", "D"]}, 
+            {"code": "BST1", "wins": 6, "mnf_pick": "F", "tb_pts": 45.0, "picks": ["F", "F", "F", "F", "D", "D", "F", "F", "F", "F", "F", "D", "F", "F"]}, 
+            {"code": "BOB", "wins": 6, "mnf_pick": "D", "tb_pts": 36.0, "picks": ["F", "F", "F", "D", "D", "F", "D", "D", "D", "F", "D", "F", "F", "D"]}, 
+            {"code": "PC", "wins": 6, "mnf_pick": "F", "tb_pts": 46.0, "picks": ["F", "D", "D", "D", "D", "F", "F", "F", "D", "D", "D", "D", "D", "F"]}, 
+            {"code": "TK", "wins": 6, "mnf_pick": "D", "tb_pts": 35.0, "picks": ["D", "F", "F", "F", "F", "F", "F", "D", "F", "D", "F", "D", "F", "D"]}, 
+            {"code": "MFA", "wins": 5, "mnf_pick": "D", "tb_pts": 37.0, "picks": ["D", "D", "D", "D", "D", "D", "F", "F", "F", "D", "F", "D", "D", "D"]}, 
+            {"code": "TR8", "wins": 5, "mnf_pick": "D", "tb_pts": 46.0, "picks": ["D", "F", "F", "F", "D", "D", "F", "D", "D", "F", "F", "D", "D", "D"]}, 
+            {"code": "NP", "wins": 5, "mnf_pick": "D", "tb_pts": 34.0, "picks": ["D", "F", "F", "F", "D", "D", "F", "D", "F", "F", "F", "D", "F", "D"]}, 
+            {"code": "RUN", "wins": 5, "mnf_pick": "D", "tb_pts": 33.0, "picks": ["F", "D", "D", "F", "F", "F", "F", "D", "D", "D", "F", "F", "F", "D"]}, 
+            {"code": "KH", "wins": 4, "mnf_pick": "D", "tb_pts": 42.0, "picks": ["F", "D", "F", "D", "D", "D", "D", "F", "D", "D", "F", "D", "F", "D"]}, 
+            {"code": "MPE", "wins": 4, "mnf_pick": "D", "tb_pts": 42.0, "picks": ["F", "D", "F", "D", "F", "D", "F", "D", "F", "D", "F", "D", "F", "D"]}, 
+            {"code": "ZIG", "wins": 3, "mnf_pick": "D", "tb_pts": 50.5, "picks": ["F", "F", "F", "D", "F", "D", "F", "D", "F", "D", "F", "D", "F", "D"]}
+        ]
+    };
+
+    // --- 2. LIVE DATA ENGINE (WEEK 2) ---
+    // All 15 games and 55 participants are now locked in here
+    const data = {
+        "games": [
+            {"fav": "Packers", "spread": 4.5, "dog": "J-E-T-S"}, 
+            {"fav": "Texans", "spread": 3.5, "dog": "Bengals"}, 
+            {"fav": "Buccaneers", "spread": 8.5, "dog": "Browns"}, 
+            {"fav": "Ravens", "spread": 8.5, "dog": "Saints"}, 
+            {"fav": "Eagles", "spread": 6.5, "dog": "Titans"}, 
+            {"fav": "Bears", "spread": 5.5, "dog": "Vikings"}, 
+            {"fav": "Patriots", "spread": 5.5, "dog": "Steelers"}, 
+            {"fav": "Panthers", "spread": 1.5, "dog": "Falcons"}, 
+            {"fav": "Broncos", "spread": 2.5, "dog": "Jaguars"}, 
+            {"fav": "Chargers", "spread": 7.5, "dog": "Raiders"}, 
+            {"fav": "Cowboys", "spread": 3.5, "dog": "Commanders"}, 
+            {"fav": "49ers", "spread": 13.5, "dog": "Dolphins"}, 
+            {"fav": "Seahawks", "spread": 4.5, "dog": "Cardinals"}, 
+            {"fav": "Chiefs", "spread": 6.5, "dog": "Colts"}, 
+            {"fav": "Rams", "spread": 7.5, "dog": "Giants"}
+        ], 
+        "live_mnf_pts": 0,
+        "participants": [
+            {"code": "ACM", "tb_pts": 44.0, "picks": ["D", "D", "F", "F", "F", "D", "F", "F", "D", "F", "F", "F", "D", "F", "D"]}, 
+            {"code": "ART", "tb_pts": 48.0, "picks": ["F", "D", "F", "F", "F", "F", "F", "F", "F", "F", "F", "D", "F", "F", "D"]}, 
+            {"code": "BEE", "tb_pts": 41.0, "picks": ["F", "D", "F", "D", "F", "F", "F", "F", "F", "D", "F", "F", "F", "F", "D"]}, 
+            {"code": "BG", "tb_pts": 42.0, "picks": ["D", "F", "F", "F", "F", "F", "F", "D", "F", "F", "F", "F", "F", "D", "D"]}, 
+            {"code": "BOB", "tb_pts": 46.0, "picks": ["F", "F", "F", "D", "F", "D", "F", "D", "F", "D", "F", "D", "D", "F", "F"]}, 
+            {"code": "BST", "tb_pts": 44.0, "picks": ["D", "D", "F", "F", "F", "F", "D", "F", "D", "D", "F", "F", "D", "F", "D"]}, 
+            {"code": "BST1", "tb_pts": 37.0, "picks": ["D", "D", "F", "F", "F", "F", "F", "F", "D", "D", "D", "D", "F", "F", "D"]}, 
+            {"code": "BVD", "tb_pts": 41.0, "picks": ["D", "D", "F", "F", "F", "D", "F", "F", "F", "D", "F", "D", "F", "F", "D"]}, 
+            {"code": "CC", "tb_pts": 44.0, "picks": ["F", "D", "F", "F", "F", "F", "F", "D", "F", "F", "F", "F", "F", "D", "D"]}, 
+            {"code": "CH", "tb_pts": 48.5, "picks": ["F", "D", "F", "D", "F", "F", "D", "F", "D", "D", "F", "F", "D", "F", "D"]}, 
+            {"code": "CL", "tb_pts": 45.0, "picks": ["D", "D", "F", "D", "F", "D", "F", "F", "D", "D", "D", "F", "D", "F", "D"]}, 
+            {"code": "CMS", "tb_pts": 56.0, "picks": ["F", "D", "F", "D", "F", "F", "F", "F", "D", "D", "F", "D", "F", "F", "D"]}, 
+            {"code": "DAR", "tb_pts": 51.0, "picks": ["F", "D", "F", "D", "F", "D", "F", "F", "D", "F", "F", "F", "F", "D", "D"]}, 
+            {"code": "DB", "tb_pts": 29.0, "picks": ["D", "F", "F", "D", "F", "D", "F", "F", "F", "D", "D", "D", "F", "F", "D"]}, 
+            {"code": "DD", "tb_pts": 46.0, "picks": ["D", "F", "F", "D", "D", "D", "F", "F", "D", "F", "F", "D", "F", "D", "F"]}, 
+            {"code": "DJ", "tb_pts": 47.0, "picks": ["D", "F", "F", "D", "F", "F", "D", "F", "F", "F", "F", "D", "F", "D", "D"]}, 
+            {"code": "EF", "tb_pts": 43.0, "picks": ["D", "D", "F", "F", "F", "F", "D", "D", "D", "D", "D", "F", "F", "D", "D"]}, 
+            {"code": "EP", "tb_pts": 43.0, "picks": ["D", "F", "D", "D", "F", "D", "D", "D", "D", "F", "F", "F", "D", "F", "D"]}, 
+            {"code": "ES", "tb_pts": 47.0, "picks": ["D", "D", "F", "F", "D", "D", "F", "F", "D", "D", "F", "F", "D", "D", "D"]}, 
+            {"code": "ERCP", "tb_pts": 46.0, "picks": ["D", "F", "F", "F", "F", "F", "D", "D", "D", "D", "D", "F", "F", "F", "D"]}, 
+            {"code": "FI", "tb_pts": 44.0, "picks": ["D", "F", "F", "D", "D", "D", "F", "D", "F", "F", "D", "F", "F", "D", "D"]}, 
+            {"code": "FISH", "tb_pts": 49.0, "picks": ["D", "F", "F", "F", "F", "F", "F", "D", "F", "F", "F", "F", "F", "F", "D"]}, 
+            {"code": "FITZ", "tb_pts": 35.0, "picks": ["F", "D", "F", "F", "F", "F", "F", "F", "D", "D", "F", "F", "D", "F", "F"]}, 
+            {"code": "KH", "tb_pts": 42.0, "picks": ["D", "F", "F", "D", "F", "D", "F", "F", "F", "D", "D", "D", "F", "F", "D"]}, 
+            {"code": "G&S", "tb_pts": 46.0, "picks": ["D", "D", "F", "F", "F", "D", "D", "F", "D", "D", "F", "F", "D", "F", "D"]}, 
+            {"code": "GCB3", "tb_pts": 46.0, "picks": ["F", "F", "F", "F", "F", "F", "D", "F", "F", "D", "F", "F", "D", "D", "D"]}, 
+            {"code": "GPO", "tb_pts": 51.0, "picks": ["D", "F", "F", "D", "F", "D", "D", "D", "D", "D", "D", "F", "F", "F", "D"]}, 
+            {"code": "GWB", "tb_pts": 47.0, "picks": ["D", "F", "F", "F", "D", "F", "D", "F", "F", "D", "F", "F", "D", "F", "D"]}, 
+            {"code": "HIC", "tb_pts": 48.0, "picks": ["D", "F", "F", "F", "F", "F", "F", "F", "F", "D", "D", "F", "F", "F", "D"]},
+            {"code": "JAL", "tb_pts": 50.0, "picks": ["D", "F", "D", "F", "F", "D", "D", "F", "F", "D", "D", "D", "D", "F", "D"]}, 
+            {"code": "JM", "tb_pts": 56.0, "picks": ["F", "D", "F", "F", "F", "D", "D", "F", "D", "F", "D", "D", "F", "F", "D"]}, 
+            {"code": "JT", "tb_pts": 42.0, "picks": ["F", "D", "F", "F", "F", "D", "F", "D", "F", "D", "F", "F", "D", "F", "D"]}, 
+            {"code": "JT8", "tb_pts": 42.0, "picks": ["F", "D", "F", "D", "F", "F", "F", "F", "D", "F", "F", "D", "F", "F", "F"]}, 
+            {"code": "KT4", "tb_pts": 41.0, "picks": ["F", "D", "F", "D", "F", "D", "D", "F", "F", "D", "F", "F", "D", "F", "D"]}, 
+            {"code": "LKB", "tb_pts": 48.0, "picks": ["F", "F", "F", "F", "F", "F", "F", "D", "F", "D", "F", "D", "F", "F", "D"]}, 
+            {"code": "LT", "tb_pts": 34.0, "picks": ["F", "F", "F", "D", "F", "F", "D", "F", "D", "D", "D", "F", "F", "F", "D"]}, 
+            {"code": "MJ", "tb_pts": 46.0, "picks": ["D", "D", "D", "F", "F", "F", "D", "D", "D", "D", "D", "D", "D", "F", "D"]}, 
+            {"code": "MJD", "tb_pts": 44.0, "picks": ["D", "D", "D", "D", "F", "F", "F", "F", "F", "D", "D", "F", "D", "F", "D"]}, 
+            {"code": "MPE", "tb_pts": 42.0, "picks": ["F", "F", "F", "F", "F", "F", "F", "D", "F", "F", "F", "F", "F", "F", "F"]}, 
+            {"code": "NAZ", "tb_pts": 49.0, "picks": ["D", "F", "F", "F", "F", "D", "D", "D", "F", "D", "D", "F", "D", "F", "F"]}, 
+            {"code": "NP", "tb_pts": 41.0, "picks": ["D", "F", "D", "D", "F", "F", "F", "D", "D", "F", "F", "F", "F", "F", "F"]}, 
+            {"code": "NP1", "tb_pts": 43.0, "picks": ["D", "D", "F", "F", "F", "F", "F", "F", "D", "F", "F", "D", "F", "F", "D"]}, 
+            {"code": "OTC", "tb_pts": 36.0, "picks": ["D", "F", "F", "F", "F", "D", "F", "D", "D", "D", "F", "D", "D", "F", "D"]}, 
+            {"code": "RGB", "tb_pts": 47.0, "picks": ["D", "F", "D", "F", "F", "F", "D", "F", "D", "D", "D", "F", "D", "F", "D"]}, 
+            {"code": "RH", "tb_pts": 43.0, "picks": ["D", "D", "F", "D", "F", "D", "F", "F", "D", "F", "D", "D", "F", "F", "D"]}, 
+            {"code": "RIF", "tb_pts": 43.0, "picks": ["F", "F", "D", "D", "F", "F", "F", "D", "F", "D", "F", "D", "D", "F", "D"]}, 
+            {"code": "RW", "tb_pts": 47.0, "picks": ["D", "D", "F", "F", "F", "F", "D", "D", "F", "D", "F", "F", "F", "F", "D"]}, 
+            {"code": "SD", "tb_pts": 43.0, "picks": ["D", "D", "D", "D", "F", "F", "D", "D", "D", "D", "F", "D", "D", "F", "D"]}, 
+            {"code": "TREZ", "tb_pts": 42.0, "picks": ["D", "F", "F", "F", "D", "D", "D", "F", "F", "D", "F", "D", "F", "D", "F"]}, 
+            {"code": "TR8", "tb_pts": 43.0, "picks": ["F", "D", "F", "F", "F", "F", "D", "F", "D", "F", "D", "F", "F", "F", "D"]}, 
+            {"code": "TR82", "tb_pts": 46.0, "picks": ["D", "F", "F", "D", "D", "D", "F", "D", "F", "F", "F", "F", "F", "D", "F"]}, 
+            {"code": "VA", "tb_pts": 59.0, "picks": ["F", "D", "F", "F", "F", "F", "D", "D", "F", "D", "F", "D", "D", "F", "F"]}, 
+            {"code": "VE", "tb_pts": 45.0, "picks": ["D", "F", "F", "D", "F", "D", "D", "F", "D", "D", "F", "F", "D", "D", "D"]}, 
+            {"code": "WPS", "tb_pts": 48.0, "picks": ["F", "F", "D", "D", "D", "D", "F", "D", "F", "F", "F", "D", "F", "D", "F"]}, 
+            {"code": "XXX", "tb_pts": 44.0, "picks": ["D", "D", "F", "D", "F", "D", "D", "D", "F", "D", "F", "F", "D", "F", "D"]}
+        ]
+    };
+
+    async function fetchLiveScores() {
+        try {
+            document.getElementById('sync-status').innerText = '🔄 Syncing live scores...';
+            const baseUrl = 'https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard';
+            const res = await fetch(baseUrl);
+            const apiData = await res.json();
+            let allEvents = apiData.events || [];
+            
+            let missingGames = false;
+            data.games.forEach(game => {
+                const favAbbr = logoMap[game.fav];
+                const dogAbbr = logoMap[game.dog];
+                const event = allEvents.find(e => {
+                    if (!e.competitions || !e.competitions[0]) return false;
+                    const teams = e.competitions[0].competitors.map(c => c.team.abbreviation.toUpperCase());
+                    return teams.includes(favAbbr) && teams.includes(dogAbbr);
+                });
+                if (!event) missingGames = true;
+            });
+
+            if (missingGames && apiData.week && apiData.week.number > 1) {
+                const prevWeek = apiData.week.number - 1;
+                const seasonType = apiData.season.type;
+                const prevRes = await fetch(`${baseUrl}?week=${prevWeek}&seasontype=${seasonType}`);
+                const prevData = await prevRes.json();
+                if (prevData.events) {
+                    allEvents = allEvents.concat(prevData.events);
+                }
+            }
+
+            data.games.forEach(game => {
+                const favAbbr = logoMap[game.fav];
+                const dogAbbr = logoMap[game.dog];
+                
+                const event = allEvents.find(e => {
+                    if (!e.competitions || !e.competitions[0]) return false;
+                    const teams = e.competitions[0].competitors.map(c => c.team.abbreviation.toUpperCase());
+                    return teams.includes(favAbbr) && teams.includes(dogAbbr);
+                });
+
+                if (event) {
+                    const comp = event.competitions[0];
+                    const favTeam = comp.competitors.find(c => c.team.abbreviation.toUpperCase() === favAbbr);
+                    const dogTeam = comp.competitors.find(c => c.team.abbreviation.toUpperCase() === dogAbbr);
+                    
+                    game.liveScoreFav = parseInt(favTeam.score) || 0;
+                    game.liveScoreDog = parseInt(dogTeam.score) || 0;
+                    game.clock = comp.status.type.detail; 
+                    game.isFinal = comp.status.type.completed;
+                    game.isLive = comp.status.type.state === 'in' || comp.status.type.state === 'post';
+
+                    const margin = game.liveScoreFav - game.liveScoreDog;
+                    if (margin > game.spread) {
+                        game.currentCover = 'F';
+                    } else if (margin < game.spread) {
+                        game.currentCover = 'D';
+                    } else {
+                        game.currentCover = 'PUSH';
+                    }
+                } else {
+                    game.liveScoreFav = 0;
+                    game.liveScoreDog = 0;
+                    game.clock = "Scheduled";
+                    game.isFinal = false;
+                    game.isLive = false;
+                    game.currentCover = null;
+                }
+            });
+
+            const mnfGame = data.games[data.games.length - 1]; 
+            data.live_mnf_pts = mnfGame.liveScoreFav + mnfGame.liveScoreDog;
+
+            evaluateParticipants();
+            renderTable();
+            renderKOH();
+
+            const now = new Date();
+            document.getElementById('sync-status').innerText = '✅ Live synced at ' + now.toLocaleTimeString();
+            document.getElementById('sync-status').style.color = '#bbf7d0';
+
+        } catch(e) {
+            console.error("Error connecting to ESPN API:", e);
+            document.getElementById('sync-status').innerText = '⚠️ Error syncing scores. Will retry automatically...';
+            document.getElementById('sync-status').style.color = '#fca5a5';
+        }
+    }
+
+    function evaluateParticipants() {
+        data.participants.forEach(p => {
+            let wins = 0;
+            p.picks.forEach((pick, i) => {
+                const game = data.games[i];
+                if ((game.isLive || game.isFinal) && game.currentCover === pick) {
+                    wins++;
+                }
+            });
+            p.liveWins = wins;
+            p.tb_diff = Math.abs(p.tb_pts - data.live_mnf_pts); 
+        });
+
+        data.participants.sort((a, b) => {
+            if (b.liveWins !== a.liveWins) return b.liveWins - a.liveWins;
+            return a.tb_diff - b.tb_diff;
+        });
+    }
+
+    // --- UI RENDERERS ---
+
+    // 1. Static Week 1 Archive
+    function renderWeek1() {
+        const tbody = document.getElementById('week1-body');
+        let html = '';
+        
+        let rankCounter = 1;
+        let displayRank = 1;
+        let prevWins = -1;
+        let prevDiff = -1;
+
+        week1Data.participants.sort((a, b) => {
+            let diffA = Math.abs(a.tb_pts - week1Data.mnf_pts_actual);
+            let diffB = Math.abs(b.tb_pts - week1Data.mnf_pts_actual);
+            if (b.wins !== a.wins) return b.wins - a.wins;
+            return diffA - diffB;
+        });
+
+        week1Data.participants.forEach((p) => {
+            let diff = Math.abs(p.tb_pts - week1Data.mnf_pts_actual);
+
+            if (p.wins !== prevWins || diff !== prevDiff) {
+                displayRank = rankCounter;
+                prevWins = p.wins;
+                prevDiff = diff;
+            }
+            rankCounter++;
+            
+            let rankColor = "var(--text-muted)";
+            let rankBadge = displayRank;
+            let highlightStyle = "";
+            
+            if (displayRank === 1) {
+                rankColor = "var(--gold)"; rankBadge = "🥇 1";
+                highlightStyle = "background: rgba(217, 119, 6, 0.08); border-left: 4px solid var(--gold);";
+            } else if (displayRank === 2) {
+                rankColor = "var(--silver)"; rankBadge = "🥈 2";
+                highlightStyle = "background: rgba(100, 116, 139, 0.05); border-left: 4px solid var(--silver);";
+            } else if (displayRank === 3) {
+                rankBadge = "🥉 3";
+            }
+            
+            // EXACT MATCH TO 6 HEADERS: Rank, Name, Wins, TB Pts, TB Diff, View
+            html += `
+                <tr onclick="showDetails('${p.code}', true)" style="${highlightStyle}">
+                    <td style="font-weight:900; color:${rankColor}; padding-left:12px;">${rankBadge}</td>
+                    <td style="font-weight:800; color:var(--text-dark);">${p.code}</td>
+                    <td style="color:#0284c7; font-weight:800;">${p.wins}</td>
+                    <td style="font-weight:600; color:var(--text-dark);">${p.tb_pts}</td>
+                    <td style="font-weight:600; color:var(--text-muted)">±${diff}</td>
+                    <td><a href="#" onclick="event.preventDefault();" class="btn-view">View</a></td>
+                </tr>
+            `;
+        });
+        tbody.innerHTML = html;
+    }
+
+    // 2. Dynamic King of the Hill Leaderboard
+    function renderKOH() {
+        const tbody = document.getElementById('koh-body');
+        
+        // Dynamically create a unique set of all participant codes across both weeks
+        let allCodes = new Set();
+        week1Data.participants.forEach(p => allCodes.add(p.code));
+        data.participants.forEach(p => allCodes.add(p.code));
+
+        let kohData = Array.from(allCodes).map(code => {
+            let week1User = week1Data.participants.find(w1 => w1.code === code);
+            let week2User = data.participants.find(w2 => w2.code === code);
+            
+            let w1Wins = week1User ? week1User.wins : 0;
+            let w2Wins = week2User ? week2User.liveWins || 0 : 0;
+
+            return {
+                code: code,
+                totalWins: w1Wins + w2Wins
+            };
+        });
+        
+        kohData.sort((a, b) => b.totalWins - a.totalWins);
+        
+        let html = '';
+        let rankCounter = 1;
+        let displayRank = 1;
+        let prevWins = -1;
+
+        kohData.forEach(p => {
+            if (p.totalWins !== prevWins) {
+                displayRank = rankCounter;
+                prevWins = p.totalWins;
+            }
+            rankCounter++;
+            
+            let rankColor = "var(--text-muted)";
+            let rankBadge = displayRank;
+            let highlightStyle = "";
+            
+            if (displayRank === 1) {
+                rankColor = "var(--gold)"; rankBadge = "👑 1";
+                highlightStyle = "background: rgba(217, 119, 6, 0.08); border-left: 4px solid var(--gold);";
+            } else if (displayRank === 2) {
+                rankColor = "var(--silver)"; rankBadge = "🥈 2";
+                highlightStyle = "background: rgba(100, 116, 139, 0.05); border-left: 4px solid var(--silver);";
+            } else if (displayRank === 3) {
+                rankBadge = "🥉 3";
+            }
+            
+            // EXACT MATCH TO 3 HEADERS: Rank, Name, Wins
+            html += `
+                <tr style="${highlightStyle}; pointer-events: none;">
+                    <td style="font-weight:900; color:${rankColor}; padding-left:12px;">${rankBadge}</td>
+                    <td style="font-weight:800; color:var(--text-dark);">${p.code}</td>
+                    <td style="font-weight:900; color:#16a34a;">${p.totalWins}</td>
+                </tr>
+            `;
+        });
+        tbody.innerHTML = html;
+    }
+
+    // 3. Dynamic Live Week 2 Table
+    function renderTable() {
+        const tbody = document.getElementById('leaderboard-body');
+        let html = '';
+        
+        let rankCounter = 1;
+        let displayRank = 1;
+        let prevWins = -1;
+        let prevDiff = -1;
+
+        data.participants.forEach((p) => {
+            if (p.liveWins !== prevWins || p.tb_diff !== prevDiff) {
+                displayRank = rankCounter;
+                prevWins = p.liveWins;
+                prevDiff = p.tb_diff;
+            }
+            rankCounter++;
+            
+            let rankColor = "var(--text-muted)";
+            let rankBadge = displayRank;
+            let highlightStyle = "";
+            
+            if (displayRank === 1) {
+                rankColor = "var(--gold)"; rankBadge = "🥇 1";
+                highlightStyle = "background: rgba(217, 119, 6, 0.08); border-left: 4px solid var(--gold);";
+            } else if (displayRank === 2) {
+                rankColor = "var(--silver)"; rankBadge = "🥈 2";
+                highlightStyle = "background: rgba(100, 116, 139, 0.05); border-left: 4px solid var(--silver);";
+            } else if (displayRank === 3) {
+                rankBadge = "🥉 3";
+            }
+
+            // EXACT MATCH TO 6 HEADERS: Rank, Name, Wins, TB Pts, TB Diff, View
+            html += `
+                <tr onclick="showDetails('${p.code}', false)" style="${highlightStyle}">
+                    <td style="font-weight:900; color:${rankColor}; padding-left:12px;">${rankBadge}</td>
+                    <td style="font-weight:800; color:var(--text-dark);">${p.code}</td>
+                    <td style="font-weight:800; color:#0284c7;">${p.liveWins}</td>
+                    <td style="font-weight:600; color:var(--text-dark);">${p.tb_pts}</td>
+                    <td style="font-weight:600; color:var(--text-muted)">±${p.tb_diff}</td>
+                    <td><a href="#" onclick="event.preventDefault();" class="btn-view">View</a></td>
+                </tr>
+            `;
+        });
+        tbody.innerHTML = html;
+    }
+
+    // 4. Drill-Down detail view (Supports both Week 1 and Week 2 modes)
+    function showDetails(code, isWeek1) {
+        document.getElementById('list-view').style.display = 'none';
+        document.getElementById('detail-view').style.display = 'block';
+        window.scrollTo(0, 0); 
+        
+        const activeData = isWeek1 ? week1Data : data;
+        const p = activeData.participants.find(x => x.code === code);
+        const content = document.getElementById('details-content');
+        if (!p) return;
+        
+        const totalGames = activeData.games.length;
+        const headerTitle = isWeek1 ? `${p.code}'s Week 1 Final Picks` : `${p.code}'s Week 2 Live Picks`;
+        const winCount = isWeek1 ? p.wins : p.liveWins;
+        const diffCount = isWeek1 ? Math.abs(p.tb_pts - activeData.mnf_pts_actual) : p.tb_diff;
+        
+        let html = `
+            <div class="details-header">
+                <h2>${headerTitle}</h2>
+            </div>
+            <div class="details-stats">
+                <div class="stat-box">
+                    <span class="stat-label">Total Wins</span>
+                    <span class="stat-val highlight">${winCount} / ${totalGames}</span>
+                </div>
+                <div class="stat-box">
+                    <span class="stat-label">Tiebreaker Pick</span>
+                    <span class="stat-val">${p.tb_pts} Pts</span>
+                </div>
+                <div class="stat-box">
+                    <span class="stat-label">TB Diff (Actual: ${isWeek1 ? activeData.mnf_pts_actual : activeData.live_mnf_pts})</span>
+                    <span class="stat-val">Off by ${diffCount}</span>
+                </div>
+            </div>
+            <div class="games-list">
+        `;
+                    
+        activeData.games.forEach((g, i) => {
+            const pick = p.picks[i];
+            
+            let isCorrect = false;
+            let iconClass = 'pending';
+            let iconMark = '○';
+            let textClass = 'text-pending';
+
+            if (g.isLive || g.isFinal) {
+                isCorrect = pick === g.currentCover;
+                iconClass = isCorrect ? 'correct' : 'wrong';
+                iconMark = isCorrect ? '✓' : '✗';
+                textClass = isCorrect ? 'text-correct' : 'text-wrong';
+            }
+            
+            let pickedTeamName = pick === 'F' ? g.fav : g.dog;
+
+            html += `
+                <div class="game-row">
+                    <div class="matchup">
+                        <div class="team-block">
+                            <img src="${getLogo(g.fav)}" class="team-logo">
+                            <span>${g.fav}</span>
+                        </div>
+                        <div class="score-block">
+                            ${g.isLive || g.isFinal ? 
+                                `<span class="score-text">${g.liveScoreFav} -${g.liveScoreDog}</span>
+                                 <span class="clock-text" style="${g.isFinal ? 'color:#475569;' : ''}">${g.clock}</span>
+                                 <span class="spread-text">Fav -${g.spread}</span>` 
+                            : 
+                                `<span class="spread-text" style="font-weight:700; color:#0f172a;">Fav -${g.spread}</span>
+                                 <span class="spread-text">Scheduled</span>`
+                            }
+                        </div>
+                        <div class="team-block">
+                            <img src="${getLogo(g.dog)}" class="team-logo">
+                            <span>${g.dog}</span>
+                        </div>
+                    </div>
+                    <div class="pick-col">
+                        <span class="badge">
+                            <img src="${getLogo(pickedTeamName)}" class="team-logo-small">
+                            <span class="${textClass}">${pickedTeamName}</span>
+                        </span>
+                        <span class="icon ${iconClass}">${iconMark}</span>
+                    </div>
+                </div>
+            `;
+        });
+        
+        html += `</div>`;
+        content.innerHTML = html;
+    }
+
+    function showList() {
+        document.getElementById('detail-view').style.display = 'none';
+        document.getElementById('list-view').style.display = 'block';
+        window.scrollTo(0, 0);
+    }
+
+    // Initialize application
+    window.onload = () => {
+        // Render static archives first
+        renderWeek1();
+
+        // Render placeholders
+        evaluateParticipants();
+        renderTable(); 
+        renderKOH();
+        
+        // Fetch real data
+        fetchLiveScores();
+        
+        // Setup polling every 30 seconds for real-time updates
+        setInterval(fetchLiveScores, 30000);
+    };
+</script>
+
+</body>
+</html>
